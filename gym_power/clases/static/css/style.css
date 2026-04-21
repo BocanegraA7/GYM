@@ -74,29 +74,12 @@ p {
 }
 
 /* 🎯 Colores por tipo */
-.btn-reportes {
-  background-color: #0088cc;
-}
-
-.btn-clases {
-  background-color: #6c5ce7;
-}
-
-.btn-editar {
-  background-color: #0984e3;
-}
-
-.btn-inscribirse {
-  background-color: #00b894;
-}
-
-.btn-eliminar {
-  background-color: #d63031;
-}
-
-.btn-logout {
-  background-color: #e74c3c;
-}
+.btn-reportes { background-color: #0088cc; }
+.btn-clases { background-color: #6c5ce7; }
+.btn-editar { background-color: #0984e3; }
+.btn-inscribirse { background-color: #00b894; }
+.btn-eliminar { background-color: #d63031; }
+.btn-logout { background-color: #e74c3c; }
 
 /* 📋 Formularios */
 form {
@@ -121,11 +104,17 @@ input:focus, select:focus, textarea:focus {
 }
 
 /* 🔍 Tablas */
+.table-container {
+  width: 100%;
+  overflow-x: auto; /* 🔥 clave para móviles */
+}
+
 table {
   width: 100%;
   margin-top: 20px;
   border-collapse: collapse;
   color: #ddd;
+  min-width: 600px; /* evita que se rompa */
 }
 
 th, td {
@@ -138,27 +127,6 @@ th {
   color: #00e0ff;
   text-transform: uppercase;
   letter-spacing: 1px;
-}
-
-/* 📱 Responsividad */
-@media (max-width: 768px) {
-  .home-container {
-    padding: 30px 25px;
-  }
-
-  h1 {
-    font-size: 1.6rem;
-  }
-
-  .btn {
-    width: 100%;
-    padding: 14px;
-    margin-top: 8px;
-  }
-
-  table, th, td {
-    font-size: 0.9rem;
-  }
 }
 
 /* 🧍 Perfil del usuario */
@@ -179,4 +147,71 @@ th {
 .user-info p {
   margin: 5px 0;
   color: #bbb;
+}
+
+/* ========================= */
+/* 📱 RESPONSIVE MEJORADO */
+/* ========================= */
+
+/* Tablets */
+@media (max-width: 768px) {
+  .home-container {
+    padding: 30px 20px;
+  }
+
+  h1 {
+    font-size: 1.6rem;
+  }
+
+  .btn {
+    width: 100%;
+    padding: 14px;
+  }
+
+  .actions {
+    gap: 10px;
+  }
+}
+
+/* Celulares grandes */
+@media (max-width: 480px) {
+  body {
+    align-items: flex-start; /* evita que quede centrado raro */
+    padding: 20px 0;
+  }
+
+  .home-container {
+    width: 95%;
+    padding: 20px 15px;
+    border-radius: 15px;
+  }
+
+  h1 {
+    font-size: 1.4rem;
+  }
+
+  p {
+    font-size: 0.95rem;
+  }
+
+  .btn {
+    font-size: 0.9rem;
+    padding: 12px;
+  }
+
+  input, select, textarea {
+    font-size: 0.9rem;
+  }
+}
+
+/* Celulares pequeños */
+@media (max-width: 360px) {
+  h1 {
+    font-size: 1.2rem;
+  }
+
+  .btn {
+    padding: 10px;
+    font-size: 0.85rem;
+  }
 }
