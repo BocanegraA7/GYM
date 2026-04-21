@@ -6,13 +6,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Clases del Gimnasio - GymPower</title>
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body class="dashboard-page">
   <div class="dashboard-wrapper">
     <main class="main-content">
       <header class="section-header">
-        <h1>💪 Clases Disponibles</h1>
+        <h1>Clases Disponibles</h1>
         
         <form method="get" action="" class="search-container">
           <input type="text" name="q" placeholder="Buscar clase, entrenador..." value="{{ request.GET.q }}">
@@ -49,9 +50,14 @@
               <div class="action-buttons">
                 {% if es_admin %}
                   <a href="{% url 'editar_clase' clase.id %}" class="btn-icon edit">✏️</a>
-                  <form method="post" action="{% url 'eliminar_clase' clase.id %}" style="display:inline;">
+                  
+                  <button type="button" class="btn-icon delete" 
+                          onclick="confirmarEliminar('{{ clase.id }}', '{{ clase.nombre|escapejs }}')">
+                    🗑️
+                  </button>
+
+                  <form id="form-eliminar-{{ clase.id }}" action="{% url 'eliminar_clase' clase.id %}" method="post" style="display:none;">
                     {% csrf_token %}
-                    <button type="submit" class="btn-icon delete" onclick="return confirm('¿Borrar esta clase?')">🗑️</button>
                   </form>
 
                 {% elif es_entrenador and clase.entrenador == user %}
@@ -79,14 +85,61 @@
         <a href="{% url 'home' %}" class="btn-back"> Volver al Inicio</a>
       </footer>
 
-      {% if messages %}
-        <div class="toast-container">
-          {% for message in messages %}
-            <div class="toast-alert">{{ message }}</div>
-          {% endfor %}
-        </div>
-      {% endif %}
     </main>
   </div>
+
+ <script>
+    // Esperar a que toda la página cargue para que Swal esté disponible
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        // 1. Notificación de éxito (Atrapa el mensaje del View)
+        {% if messages %}
+            {% for message in messages %}
+                Swal.fire({
+                    title: "¡Excelente!",
+                    text: "{{ message|escapejs }}", 
+                    icon: "success",
+                    timer: 2500,
+                    showConfirmButton: false,
+                    background: '#1f2937',
+                    color: '#ffffff'
+                });
+            {% endfor %}
+        {% endif %}
+    });
+
+    // 2. Función para confirmar antes de borrar (esta va afuera)
+    function confirmarEliminar(id, nombre) {
+        if (typeof Swal === 'undefined') {
+            // Si por alguna razón SweetAlert no cargó, usamos el plan B
+            if (confirm("¿Estás seguro de eliminar esta clase?")) {
+                document.getElementById('form-eliminar-' + id).submit();
+            }
+            return;
+        }
+
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: `Vas a eliminar la clase "${nombre}". No podrás deshacer esto.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar',
+            background: '#1f2937',
+            color: '#ffffff'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const form = document.getElementById('form-eliminar-' + id);
+                if (form) {
+                    form.submit();
+                } else {
+                    console.error("No se encontró el formulario: form-eliminar-" + id);
+                }
+            }
+        });
+    }
+</script>
 </body>
 </html>

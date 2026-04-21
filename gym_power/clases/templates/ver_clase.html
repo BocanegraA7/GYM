@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ver Clase - GymPower</title>
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="dashboard-page">
   <div class="dashboard-wrapper">
@@ -51,31 +52,58 @@
         </div>
 
         <div class="detail-actions">
-          {% if role_name == "Administrador" %}
-            <a href="{% url 'editar_clase' clase.id %}" class="btn-action edit">✏️ Editar Clase</a>
-            <form method="post" action="{% url 'eliminar_clase' clase.id %}" style="display:inline;">
-              {% csrf_token %}
-              <button type="submit" class="btn-action delete" onclick="return confirm('¿Seguro que deseas eliminar esta clase?')">
-                🗑️ Eliminar
-              </button>
-            </form>
-          {% endif %}
+            {% if role_name == "Administrador" %}
+                {# --- SECCIÓN ADMINISTRADOR --- #}
+                <a href="{% url 'editar_clase' clase.id %}" class="btn-action edit">✏️ Editar Clase</a>
 
-          {% if role_name == "Entrenador" and clase.entrenador == user %}
-            <a href="{% url 'editar_clase' clase.id %}" class="btn-action edit">✏️ Editar mis Horarios</a>
-          {% endif %}
+                <button type="button" 
+                        onclick="confirmarEliminar('{{ clase.id }}', '{{ clase.nombre|escapejs }}')" 
+                        class="btn btn-danger">
+                    Eliminar
+                </button>
 
-          {% if role_name == "Cliente" %}
-            {% if clase.cupos > 0 %}
-              <form method="post" action="{% url 'inscribirse_clase' clase.id %}" class="full-width-form">
-                {% csrf_token %}
-                <button type="submit" class="btn-enroll-large">📝 Inscribirme Ahora</button>
-              </form>
-            {% else %}
-              <button class="btn-disabled-large" disabled>❌ Clase sin Cupos</button>
+                <form id="form-eliminar-{{ clase.id }}" 
+                      action="{% url 'eliminar_clase' clase.id %}" 
+                      method="POST" 
+                      style="display:none;">
+                    {% csrf_token %}
+                </form>
+
+            {% elif role_name == "Entrenador" and clase.entrenador == user %}
+                {# --- SECCIÓN ENTRENADOR --- #}
+                <a href="{% url 'editar_clase' clase.id %}" class="btn-action edit">✏️ Editar mis Horarios</a>
+
+            {% elif role_name == "Cliente" %}
+                {# --- SECCIÓN CLIENTE --- #}
+                {% if clase.cupos > 0 %}
+                    <form method="post" action="{% url 'inscribirse_clase' clase.id %}" class="full-width-form">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-enroll-large">📝 Inscribirme Ahora</button>
+                    </form>
+                {% else %}
+                    <button class="btn-disabled-large" disabled>❌ Clase sin Cupos</button>
+                {% endif %}
             {% endif %}
-          {% endif %}
         </div>
+        <script>
+function confirmarEliminar(id, nombre) {
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: `Vas a eliminar la clase "${nombre}". Esta acción no se puede deshacer.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById('form-eliminar-' + id).submit();
+        }
+    })
+}
+</script>
+
 
         <footer class="detail-footer">
           <a href="{% url 'listar_clases' %}" class="link-back">🔙 Volver a la lista</a>

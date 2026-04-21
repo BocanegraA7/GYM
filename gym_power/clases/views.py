@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.shortcuts import redirect
 from .models import Clase
 from user.models import Users
 from .forms import ClaseForm
@@ -97,25 +98,12 @@ def editar_clase(request, clase_id):
 
 @login_required
 def eliminar_clase(request, clase_id):
-    """Eliminar una clase"""
     clase = get_object_or_404(Clase, id=clase_id)
-
-    try:
-        perfil = Users.objects.get(username=request.user.username)
-        role_name = perfil.role.nombre if perfil.role else None
-    except Users.DoesNotExist:
-        role_name = None
-
     if request.method == "POST":
         clase.delete()
-        messages.success(request, "Clase eliminada correctamente.")
-        return redirect("listar_clases")
-
-    return render(request, "eliminar_clase.html", {
-        "clase": clase,
-        "role_name": role_name,
-        "user": request.user
-    })
+        messages.success(request,"¡Clase eliminada con éxito!")
+    
+    return redirect("listar_clases")
 
 
 @login_required
