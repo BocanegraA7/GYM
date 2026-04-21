@@ -3,68 +3,86 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ver Clase - GymPower</title>
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
-<body>
-  <div class="home-container">
-    <h1>📋 Detalle de la Clase</h1>
+<body class="dashboard-page">
+  <div class="dashboard-wrapper">
+    <main class="main-content">
+      <div class="detail-card">
+        <header class="detail-header">
+          <span class="detail-label">Detalles del Entrenamiento</span>
+          <h1>{{ clase.nombre }}</h1>
+        </header>
 
-    <table>
-      <tr>
-        <th>Nombre:</th>
-        <td>{{ clase.nombre }}</td>
-      </tr>
-      <tr>
-        <th>Entrenador:</th>
-        <td>{{ clase.entrenador.username }}</td>
-      </tr>
-      <tr>
-        <th>Fecha:</th>
-        <td>{{ clase.fecha }}</td>
-      </tr>
-      <tr>
-        <th>Hora:</th>
-        <td>{{ clase.hora }}</td>
-      </tr>
-      <tr>
-        <th>Cupos:</th>
-        <td>{{ clase.cupos }}</td>
-      </tr>
-    </table>
+        <div class="detail-grid">
+          <div class="info-item">
+            <span class="icon">🧑‍🏫</span>
+            <div class="info-content">
+              <label>Entrenador</label>
+              <p>{{ clase.entrenador.username }}</p>
+            </div>
+          </div>
 
-    <div class="acciones">
-      <!-- ADMINISTRADOR -->
-      {% if role_name == "Administrador" %}
-        <a href="{% url 'editar_clase' clase.id %}" class="btn btn-editar">✏️ Editar</a>
-        <form method="post" action="{% url 'eliminar_clase' clase.id %}" style="display:inline;">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-eliminar" onclick="return confirm('¿Seguro que deseas eliminar esta clase?')">
-            🗑️ Eliminar
-          </button>
-        </form>
-      {% endif %}
+          <div class="info-item">
+            <span class="icon">📅</span>
+            <div class="info-content">
+              <label>Fecha</label>
+              <p>{{ clase.fecha }}</p>
+            </div>
+          </div>
 
-      <!-- ENTRENADOR -->
-      {% if role_name == "Entrenador" and clase.entrenador == user %}
-        <a href="{% url 'editar_clase' clase.id %}" class="btn btn-editar">✏️ Editar</a>
-      {% endif %}
+          <div class="info-item">
+            <span class="icon">🕒</span>
+            <div class="info-content">
+              <label>Hora</label>
+              <p>{{ clase.hora }}</p>
+            </div>
+          </div>
 
-      <!-- CLIENTE -->
-      {% if role_name == "Cliente" %}
-        {% if clase.cupos > 0 %}
-          <form method="post" action="{% url 'inscribirse_clase' clase.id %}" style="display:inline;">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-clases">📝 Inscribirme</button>
-          </form>
-        {% else %}
-          <span class="btn btn-disabled">❌ Sin cupos</span>
-        {% endif %}
-      {% endif %}
-    </div>
+          <div class="info-item">
+            <span class="icon">🎟️</span>
+            <div class="info-content">
+              <label>Cupos Disponibles</label>
+              <p class="cupos-count">{{ clase.cupos }}</p>
+            </div>
+          </div>
+        </div>
 
-    <a href="{% url 'listar_clases' %}" class="btn btn-reportes">🔙 Volver a Clases</a>
-    <a href="{% url 'home' %}" class="btn btn-reportes">🏠 Volver al Inicio</a>
+        <div class="detail-actions">
+          {% if role_name == "Administrador" %}
+            <a href="{% url 'editar_clase' clase.id %}" class="btn-action edit">✏️ Editar Clase</a>
+            <form method="post" action="{% url 'eliminar_clase' clase.id %}" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="btn-action delete" onclick="return confirm('¿Seguro que deseas eliminar esta clase?')">
+                🗑️ Eliminar
+              </button>
+            </form>
+          {% endif %}
+
+          {% if role_name == "Entrenador" and clase.entrenador == user %}
+            <a href="{% url 'editar_clase' clase.id %}" class="btn-action edit">✏️ Editar mis Horarios</a>
+          {% endif %}
+
+          {% if role_name == "Cliente" %}
+            {% if clase.cupos > 0 %}
+              <form method="post" action="{% url 'inscribirse_clase' clase.id %}" class="full-width-form">
+                {% csrf_token %}
+                <button type="submit" class="btn-enroll-large">📝 Inscribirme Ahora</button>
+              </form>
+            {% else %}
+              <button class="btn-disabled-large" disabled>❌ Clase sin Cupos</button>
+            {% endif %}
+          {% endif %}
+        </div>
+
+        <footer class="detail-footer">
+          <a href="{% url 'listar_clases' %}" class="link-back">🔙 Volver a la lista</a>
+          <a href="{% url 'home' %}" class="link-back">🏠 Inicio</a>
+        </footer>
+      </div>
+    </main>
   </div>
 </body>
 </html>

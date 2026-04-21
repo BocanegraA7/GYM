@@ -3,19 +3,41 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Editar Clase - GymPower</title>
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
-<body>
-  <div class="home-container">
-    <h1>✏️ Editar Clase</h1>
+<body class="dashboard-page">
+  <div class="dashboard-wrapper">
+    <main class="main-content">
+      <div class="form-card">
+        <header class="form-header">
+          <h1>✏️ Editar Clase</h1>
+          <p>Modifica los detalles de la sesión de entrenamiento</p>
+        </header>
 
-    <form method="post">
-      {% csrf_token %}
-      {{ form.as_p }}
-      <button type="submit" class="btn btn-editar">Actualizar</button>
-      <a href="{% url 'listar_clases' %}" class="btn btn-reportes">Cancelar</a>
-    </form>
+        <form method="post" class="gym-form">
+          {% csrf_token %}
+          
+          <div class="form-body">
+            {% for field in form %}
+              <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                  <span class="field-errors">{{ field.errors|striptags }}</span>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-save">Actualizar Clase</button>
+            <a href="{% url 'listar_clases' %}" class="btn-cancel">Cancelar</a>
+          </div>
+        </form>
+      </div>
+    </main>
   </div>
 </body>
 </html>
