@@ -1,0 +1,7 @@
+django_rest_framework
+requests
+django
+django_filter
+psycopg2-binary
+reportlab
+openpyxl

@@ -1,0 +1,31 @@
+Manito, en el Docker Compose solo esta montada la BD
+
+Para activarlo debe hacer Docker compose up -d esto levanta el servicio de la BD y el PgAdmin.
+
+Solo en el Docker compose no están los datos que yo tengo en BD, para esto en este proyecto hay un archivo .targz que tiene los datos
+en BD 
+/gym_power\gym_project_postgres_data-cloned.tar.gz
+
+En su pc cree un volumen nuevo
+
+docker volume create gym_project_postgres_data
+
+Se agrega el contenido del archivo comprimido al volumen nuevo (Transferencia de datos)
+
+docker run --rm -v gym_project_postgres_data:/data -v $(pwd):/backup alpine \
+    sh -c "cd /data && tar xvf /backup/gym_project_postgres_data-cloned.tar.gz"
+
+
+Para crear apps se usa el comando 
+
+Python manage.py startapp
+
+Esto crear una nueva aplicación dentro del proyecto para un nuevo modulo, por ejemplo el de notificaciones
+
+
+Para ejecutar el código manito mientras hacemos pruebas y no jugar tanto con Docker 
+solo ejecute siempre como 
+
+Python manage.py runserver
+
+

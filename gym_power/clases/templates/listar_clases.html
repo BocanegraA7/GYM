@@ -1,0 +1,211 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Clases del Gimnasio - GymPower</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #1e1e2f, #3c3c64);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: white;
+    }
+
+    .home-container {
+      background: #2c2c3e;
+      padding: 40px 50px;
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+      width: 95%;
+      max-width: 1000px;
+      text-align: center;
+      animation: fadeIn 1s forwards;
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h1 {
+      color: #00e0ff;
+      margin-bottom: 20px;
+    }
+
+    .search-form {
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .search-form input {
+      padding: 10px;
+      border-radius: 10px;
+      border: none;
+      width: 300px;
+      outline: none;
+      font-size: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      border-bottom: 1px solid #555;
+      padding: 12px;
+      text-align: center;
+    }
+
+    th {
+      color: #00e0ff;
+      text-transform: uppercase;
+      font-size: 14px;
+      letter-spacing: 1px;
+    }
+
+    tr:hover {
+      background-color: rgba(0, 224, 255, 0.05);
+    }
+
+    .btn {
+      padding: 8px 14px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s, box-shadow 0.3s, transform 0.2s;
+      text-decoration: none;
+      color: white;
+      display: inline-block;
+      margin: 3px;
+    }
+
+    .btn:hover {
+      box-shadow: 0 5px 15px rgba(0, 224, 255, 0.5);
+      transform: scale(1.05);
+    }
+
+    .btn-clases { background-color: #6c5ce7; }
+    .btn-reportes { background-color: #0088cc; }
+    .btn-editar { background-color: #0984e3; }
+    .btn-eliminar { background-color: #d63031; }
+    .btn-info { background-color: #00b894; }
+    .btn-disabled {
+      background-color: #555;
+      cursor: not-allowed;
+    }
+
+    .messages {
+      margin-top: 20px;
+    }
+
+    .alert {
+      background: rgba(0, 224, 255, 0.1);
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 5px;
+      border: 1px solid rgba(0, 224, 255, 0.4);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="home-container">
+    <h1>💪 Clases Disponibles</h1>
+
+    <!-- 🔍 Formulario de búsqueda -->
+    <form method="get" action="" class="search-form">
+      <input type="text" name="q" placeholder="Buscar por nombre, entrenador o fecha..." value="{{ request.GET.q }}">
+      <button type="submit" class="btn btn-clases">Buscar</button>
+      <a href="{% url 'listar_clases' %}" class="btn btn-reportes">Limpiar</a>
+    </form>
+
+    <!-- ➕ Crear nueva clase (solo admin o entrenador) -->
+    {% if es_admin or es_entrenador %}
+      <a href="{% url 'crear_clase' %}" class="btn btn-clases">➕ Crear Nueva Clase</a>
+    {% endif %}
+
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Entrenador</th>
+          <th>Fecha</th>
+          <th>Hora</th>
+          <th>Cupos</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for clase in clases %}
+          <tr>
+            <td>{{ clase.nombre }}</td>
+            <td>{{ clase.entrenador.username }}</td>
+            <td>{{ clase.fecha }}</td>
+            <td>{{ clase.hora }}</td>
+            <td>{{ clase.cupos }}</td>
+            <td>
+              <!-- 🔍 Ver detalles -->
+              <a href="{% url 'ver_clase' clase.id %}" class="btn btn-info">👁️ Ver</a>
+
+              <!-- 👑 ADMINISTRADOR -->
+              {% if es_admin %}
+                <a href="{% url 'editar_clase' clase.id %}" class="btn btn-editar">✏️ Editar</a>
+                <form method="post" action="{% url 'eliminar_clase' clase.id %}" style="display:inline;">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-eliminar" onclick="return confirm('¿Seguro que deseas eliminar esta clase?')">
+                    🗑️ Eliminar
+                  </button>
+                </form>
+
+              <!-- 🧑‍🏫 ENTRENADOR -->
+              {% elif es_entrenador and clase.entrenador == user %}
+                <a href="{% url 'editar_clase' clase.id %}" class="btn btn-editar">✏️ Editar</a>
+
+              <!-- 🧍 CLIENTE -->
+              {% elif es_cliente %}
+                {% if clase.cupos > 0 %}
+                  <form method="post" action="{% url 'inscribirse_clase' clase.id %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-clases">📝 Inscribirme</button>
+                  </form>
+                {% else %}
+                  <span class="btn btn-disabled">❌ Sin cupos</span>
+                {% endif %}
+              {% endif %}
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="6">No hay clases disponibles.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <a href="{% url 'home' %}" class="btn btn-reportes">🏠 Volver al Inicio</a>
+
+    {% if messages %}
+      <div class="messages">
+        {% for message in messages %}
+          <div class="alert">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</body>
+</html>

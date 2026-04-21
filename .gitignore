@@ -1,0 +1,13 @@
+# Entornos virtuales
+devenv/
+
+# Carpeta de base de datos (La que causa el error de permisos)
+gym_power/gym_project_postgres_data-cloned/
+gym_project_postgres_data-cloned/
+
+# Python
+__pycache__/
+*.pyc
+
+# Otros
+.env

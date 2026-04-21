@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Reportes - GymPower</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Segoe UI", sans-serif;
+        background: linear-gradient(135deg, #1e1e2f, #3c3c64);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        color: white;
+      }
+
+      .report-container {
+        background: #2c2c3e;
+        padding: 30px 40px;
+        border-radius: 20px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        width: 90%;
+        max-width: 1000px;
+        animation: fadeIn 1s forwards;
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+
+      @keyframes fadeIn {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      h2 {
+        color: #00e0ff;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      .alert {
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        text-align: center;
+        font-weight: bold;
+        opacity: 0.95;
+        transition: opacity 0.5s ease-in-out;
+      }
+      .alert-success {
+        background-color: #2ecc71;
+      }
+      .alert-error {
+        background-color: #e74c3c;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+      }
+
+      table th,
+      table td {
+        border: 1px solid #444;
+        padding: 10px;
+        text-align: center;
+        font-size: 14px;
+      }
+
+      table th {
+        background-color: #3c3c64;
+        color: #00e0ff;
+      }
+
+      .actions {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s, box-shadow 0.3s;
+      }
+
+      .btn-pdf {
+        background-color: #e74c3c;
+        color: white;
+      }
+
+      .btn-excel {
+        background-color: #2ecc71;
+        color: white;
+      }
+
+      .btn-telegram {
+        background-color: #0088cc;
+        color: white;
+      }
+
+      .btn-email {
+        background-color: #ff9800;
+        color: white;
+      }
+
+      .btn:hover {
+        box-shadow: 0 5px 15px rgba(0, 224, 255, 0.5);
+        transform: scale(1.05);
+      }
+
+      .back-link {
+        display: block;
+        text-align: center;
+        margin-top: 15px;
+        color: #00e0ff;
+        text-decoration: none;
+      }
+
+      select {
+        padding: 5px;
+        border-radius: 5px;
+        border: none;
+        margin-right: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="report-container">
+      <h2>📊 Reportes de Usuarios</h2>
+
+      <!-- 🔔 BLOQUE DE MENSAJES -->
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-error{% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Plan</th>
+            <th>Fecha Registro</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in users %}
+          <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.first_name }} {{ user.last_name }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.role }}</td>
+            <td>{{ user.fecha_registro|date:"d/m/Y" }}</td>
+            <td>
+              <!-- Enviar por Telegram -->
+              <form method="post" action="{% url 'send_report_telegram' %}" style="margin-bottom:8px;">
+                {% csrf_token %}
+                <input type="hidden" name="user_id" value="{{ user.id }}">
+                <select name="file_type">
+                  <option value="pdf">📄 PDF</option>
+                  <option value="excel">📊 Excel</option>
+                </select>
+                <button type="submit" class="btn btn-telegram">📩 Telegram</button>
+              </form>
+
+              <!-- Enviar por Email -->
+              <form method="post" action="{% url 'send_report_email' %}">
+                {% csrf_token %}
+                <input type="hidden" name="user_id" value="{{ user.id }}">
+                <select name="file_type">
+                  <option value="pdf">📄 PDF</option>
+                  <option value="excel">📊 Excel</option>
+                </select>
+                <button type="submit" class="btn btn-email">✉️ Correo</button>
+              </form>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6">No hay usuarios disponibles.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <div class="actions">
+        <a href="{% url 'export_pdf' %}" class="btn btn-pdf">📄 Descargar PDF</a>
+        <a href="{% url 'export_excel' %}" class="btn btn-excel">📊 Descargar Excel</a>
+        <a href="{% url 'home' %}" class="back-link">⬅ Volver al Home</a>
+      </div>
+    </div>
+
+    <script>
+      // Desvanece las alertas después de 3 segundos
+      setTimeout(() => {
+        document.querySelectorAll(".alert").forEach((el) => {
+          el.style.opacity = "0";
+          setTimeout(() => el.remove(), 500);
+        });
+      }, 3000);
+    </script>
+  </body>
+</html>

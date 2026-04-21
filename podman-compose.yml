@@ -1,0 +1,39 @@
+services:
+  postgres:
+    container_name: postgres_gym
+    image: postgres:17
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d gymdb"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: Gym2025@
+      POSTGRES_DB: gymdb
+    ports:
+      - "5432:5432"
+    volumes:
+      # Aquí montamos tu carpeta local con los datos de postgres
+      - ./gym_power/gym_project_postgres_data-cloned:/var/lib/postgresql/data:Z
+    networks:
+      - gym_backend
+
+  pgadmin:
+    container_name: pgadmin_gym
+    image: dpage/pgadmin4:latest
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: sebastian-montoyar@unilibre.edu.co
+      PGADMIN_DEFAULT_PASSWORD: Gym@dmin2025@
+    ports:
+      - "5497:80"
+    depends_on:
+      - postgres
+    networks:
+      - gym_backend
+
+networks:
+  gym_backend:
+    driver: bridge

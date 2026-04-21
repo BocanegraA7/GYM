@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Registro - GymPower</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Segoe UI", sans-serif;
+        background: linear-gradient(135deg, #1e1e2f, #3c3c64);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        color: white;
+      }
+
+      .login-container {
+        background: #2c2c3e;
+        padding: 30px 40px;
+        border-radius: 20px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        text-align: center;
+        width: 750px;
+        animation: fadeIn 1s forwards;
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+
+      @keyframes fadeIn {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .login-container img {
+        width: 60px;
+        margin-bottom: 10px;
+      }
+
+      .login-container h2 {
+        color: #00e0ff;
+        margin-bottom: 10px;
+      }
+
+      form {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px 30px;
+      }
+
+      label {
+        text-align: left;
+        font-size: 13px;
+        color: #ccc;
+      }
+
+      input,
+      select {
+        width: 100%;
+        padding: 10px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+      }
+
+      .full-width {
+        grid-column: 1 / 3;
+      }
+
+      input[type="submit"] {
+        background-color: #00e0ff;
+        color: #000;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s, box-shadow 0.3s;
+      }
+
+      input[type="submit"]:hover {
+        background-color: #00c3e1;
+        box-shadow: 0 5px 15px rgba(0, 224, 255, 0.5);
+      }
+
+      .error {
+        color: red;
+        grid-column: 1 / 3;
+        margin-top: 10px;
+        font-size: 14px;
+      }
+
+      .forgot-link {
+        display: block;
+        margin-top: 15px;
+        color: #00e0ff;
+        font-size: 14px;
+        text-decoration: none;
+        transition: color 0.3s;
+      }
+
+      .forgot-link:hover {
+        color: #00b8cc;
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="login-container">
+      <img src="https://www.svgrepo.com/show/18057/dumbbell.svg" alt="Pesas" />
+      <h2>Registro en GymPower</h2>
+
+      <form method="POST">
+        {% csrf_token %}
+
+        <div>
+          <label>Nombre de usuario:</label>
+          <input type="text" name="username" required />
+        </div>
+
+        <div>
+          <label>Email:</label>
+          <input type="email" name="email" required />
+        </div>
+
+        <div>
+          <label>Chat id Telegram:</label>
+          <input type="text" name="chat_id" required />
+        </div>
+
+        <div>
+          <label>Contraseña:</label>
+          <input type="password" name="password1" required />
+        </div>
+
+        <div>
+          <label>Confirmar contraseña:</label>
+          <input type="password" name="password2" required />
+        </div>
+
+        <div>
+          <label>Nombre:</label>
+          <input type="text" name="name" required />
+        </div>
+
+        <div>
+          <label>Apellidos:</label>
+          <input type="text" name="last_name" required />
+        </div>
+
+        <div>
+          <label>Fecha de registro:</label>
+          <input type="date" name="membership_date" required />
+        </div>
+
+        <div class="full-width">
+          <label>Rol:</label>
+          <select name="roles" required>
+            <option value="1">Administrador</option>
+            <option value="2">Entrenador</option>
+            <option value="3">Cliente</option>
+          </select>
+        </div>
+
+        {% if error %}
+        <p class="error">{{ error }}</p>
+        {% endif %}
+        <input class="full-width" type="submit" value="Registrarse" />
+        <a href="{% url 'login' %}" class="forgot-link"
+          >Volver al inicio de sesión</a
+        >
+      </form>
+    </div>
+  </body>
+</html>

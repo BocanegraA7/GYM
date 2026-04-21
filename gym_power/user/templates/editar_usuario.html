@@ -1,0 +1,22 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Editar Perfil</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+  <div class="home-container">
+    <h1>⚙️ Editar Información del Usuario</h1>
+
+    <form method="POST">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="btn btn-clases">💾 Guardar Cambios</button>
+    </form>
+
+    <a href="{% url 'home' %}" class="btn btn-reportes">🏠 Volver al Inicio</a>
+  </div>
+</body>
+</html>

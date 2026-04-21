@@ -1,0 +1,21 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Editar Clase - GymPower</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+  <div class="home-container">
+    <h1>✏️ Editar Clase</h1>
+
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="btn btn-editar">Actualizar</button>
+      <a href="{% url 'listar_clases' %}" class="btn btn-reportes">Cancelar</a>
+    </form>
+  </div>
+</body>
+</html>

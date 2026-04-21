@@ -1,0 +1,70 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Ver Clase - GymPower</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+  <div class="home-container">
+    <h1>📋 Detalle de la Clase</h1>
+
+    <table>
+      <tr>
+        <th>Nombre:</th>
+        <td>{{ clase.nombre }}</td>
+      </tr>
+      <tr>
+        <th>Entrenador:</th>
+        <td>{{ clase.entrenador.username }}</td>
+      </tr>
+      <tr>
+        <th>Fecha:</th>
+        <td>{{ clase.fecha }}</td>
+      </tr>
+      <tr>
+        <th>Hora:</th>
+        <td>{{ clase.hora }}</td>
+      </tr>
+      <tr>
+        <th>Cupos:</th>
+        <td>{{ clase.cupos }}</td>
+      </tr>
+    </table>
+
+    <div class="acciones">
+      <!-- ADMINISTRADOR -->
+      {% if role_name == "Administrador" %}
+        <a href="{% url 'editar_clase' clase.id %}" class="btn btn-editar">✏️ Editar</a>
+        <form method="post" action="{% url 'eliminar_clase' clase.id %}" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-eliminar" onclick="return confirm('¿Seguro que deseas eliminar esta clase?')">
+            🗑️ Eliminar
+          </button>
+        </form>
+      {% endif %}
+
+      <!-- ENTRENADOR -->
+      {% if role_name == "Entrenador" and clase.entrenador == user %}
+        <a href="{% url 'editar_clase' clase.id %}" class="btn btn-editar">✏️ Editar</a>
+      {% endif %}
+
+      <!-- CLIENTE -->
+      {% if role_name == "Cliente" %}
+        {% if clase.cupos > 0 %}
+          <form method="post" action="{% url 'inscribirse_clase' clase.id %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-clases">📝 Inscribirme</button>
+          </form>
+        {% else %}
+          <span class="btn btn-disabled">❌ Sin cupos</span>
+        {% endif %}
+      {% endif %}
+    </div>
+
+    <a href="{% url 'listar_clases' %}" class="btn btn-reportes">🔙 Volver a Clases</a>
+    <a href="{% url 'home' %}" class="btn btn-reportes">🏠 Volver al Inicio</a>
+  </div>
+</body>
+</html>

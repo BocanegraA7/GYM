@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>📢 Gestión de Notificaciones</title>
+  <style>
+    body {
+      background: linear-gradient(135deg, #1e1e2f, #3c3c64);
+      font-family: "Segoe UI", sans-serif;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 30px;
+    }
+    h1 { color: #00e0ff; text-align: center; }
+    .alert {
+      padding: 12px; border-radius: 8px; margin-bottom: 15px; text-align: center;
+      font-weight: bold; opacity: 0.95; transition: opacity 0.5s ease-in-out;
+    }
+    .alert-success { background-color: #2ecc71; }
+    .alert-error { background-color: #e74c3c; }
+
+    .form-container, .table-container {
+      background: #2c2c3e; padding: 25px 35px; border-radius: 20px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.5);
+      width: 90%; max-width: 900px; margin-bottom: 25px;
+    }
+
+    input, textarea, select, button {
+      padding: 10px; border-radius: 8px; border: none; outline: none;
+      width: 100%;
+    }
+
+    button {
+      background-color: #0088cc; color: white; font-weight: bold; cursor: pointer;
+    }
+    button:hover { background-color: #00aaff; }
+
+    table {
+      width: 100%; border-collapse: collapse; margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #555; padding: 10px; text-align: left;
+    }
+    th { background-color: #3c3c64; }
+
+    .btn { padding: 6px 12px; border-radius: 8px; text-decoration: none; color: white; }
+    .btn-edit { background-color: #f39c12; }
+    .btn-delete { background-color: #e74c3c; }
+    .btn-send { background-color: #2ecc71; }
+  </style>
+</head>
+<body>
+
+  <h1>📢 Gestión de Notificaciones</h1>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-error{% endif %}">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="form-container">
+    <h2>{% if notificacion %}✏️ Editar{% else %}➕ Crear{% endif %}</h2>
+    <form method="POST">
+      {% csrf_token %}
+      <label>Destinatario:</label>
+      <select name="destinatario" required>
+        {% for usuario in usuarios %}
+          <option value="{{ usuario.username }}" {% if notificacion and usuario.username == notificacion.destinatario.username %}selected{% endif %}>{{ usuario.username }}</option>
+        {% endfor %}
+      </select>
+
+      <label>Título:</label>
+      <input type="text" name="titulo" value="{{ notificacion.titulo|default:'' }}" required>
+
+      <label>Descripción:</label>
+      <textarea name="descripcion" rows="3" required>{{ notificacion.descripcion|default:'' }}</textarea>
+
+      <label>Fecha de envío:</label>
+      <input type="datetime-local" name="fecha_envio" value="{{ notificacion.fecha_envio|date:'Y-m-d\\TH:i'|default:'' }}" required>
+
+      <button type="submit">{% if notificacion %}Actualizar{% else %}Guardar{% endif %}</button>
+    </form>
+  </div>
+
+  <div class="table-container">
+    <h2>📋 Lista de Notificaciones</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Título</th>
+          <th>Destinatario</th>
+          <th>Fecha envío</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for n in notificaciones %}
+        <tr>
+          <td>{{ n.titulo }}</td>
+          <td>{{ n.destinatario.username }}</td>
+          <td>{{ n.fecha_envio|date:"Y-m-d H:i" }}</td>
+          <td>{% if n.enviado %}✅ Enviado{% else %}🕒 Pendiente{% endif %}</td>
+          <td>
+            <a href="{% url 'notificacion_edit' n.id %}" class="btn btn-edit">Editar</a>
+            <a href="{% url 'notificacion_delete' n.id %}" class="btn btn-delete" onclick="return confirm('¿Eliminar?')">Eliminar</a>
+            {% if not n.enviado %}
+              <a href="{% url 'notificacion_enviar' n.id %}" class="btn btn-send">Enviar</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5">No hay notificaciones registradas.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <a href="{% url 'home' %}" style="color:#00e0ff;">⬅ Volver al inicio</a>
+
+</body>
+</html>

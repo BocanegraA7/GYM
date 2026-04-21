@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Inicio - GymPower</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Segoe UI", sans-serif;
+        background: linear-gradient(135deg, #1e1e2f, #3c3c64);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        color: white;
+      }
+
+      .home-container {
+        background: #2c2c3e;
+        padding: 40px 50px;
+        border-radius: 20px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        width: 90%;
+        max-width: 800px;
+        text-align: center;
+        animation: fadeIn 1s forwards;
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+
+      @keyframes fadeIn {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      h1 {
+        color: #00e0ff;
+        margin-bottom: 10px;
+      }
+
+      p {
+        margin-bottom: 20px;
+      }
+
+      .actions {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+      }
+
+      .btn {
+        padding: 12px 20px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s, box-shadow 0.3s, transform 0.2s;
+        text-decoration: none;
+        color: white;
+        display: inline-block;
+      }
+
+      .btn-reportes { background-color: #0088cc; }
+      .btn-clases { background-color: #6c5ce7; }
+      .btn-editar { background-color: #0984e3; }
+      .btn-inscribirse { background-color: #00b894; }
+      .btn-logout { background-color: #e74c3c; }
+      .btn-usuarios { background-color: #d35400; }
+      .btn-eliminar { background-color: #c0392b; }
+
+      .btn:hover {
+        box-shadow: 0 5px 15px rgba(0, 224, 255, 0.5);
+        transform: scale(1.05);
+      }
+
+      form { display: inline; }
+    </style>
+  </head>
+
+  <body>
+    <div class="home-container">
+      <h1>🏋️ Bienvenido, {{ user.username }}</h1>
+      <p>Has iniciado sesión correctamente. Usa las opciones de abajo para navegar.</p>
+
+      <div class="actions">
+        <!-- ADMINISTRADOR -->
+        {% if role_name == "Administrador" %}
+          <a href="{% url 'crear_clase' %}" class="btn btn-clases">➕ Crear Clase</a>
+          <a href="{% url 'listar_clases' %}" class="btn btn-clases">📋 Listar Clases</a>
+          <a href="{% url 'reportes' %}" class="btn btn-reportes">📊 Ver Reportes</a>
+          <a href="{% url 'notificaciones' %}" class="btn btn-inscribirse">📢 Enviar Notificación</a>
+          <a href="{% url 'listar_usuarios' %}" class="btn btn-usuarios">👥 Gestionar Usuarios</a>
+        {% endif %}
+
+        <!-- ENTRENADOR -->
+        {% if role_name == "Entrenador" %}
+          <a href="{% url 'crear_clase' %}" class="btn btn-clases">➕ Crear Clase</a>
+          <a href="{% url 'listar_clases' %}" class="btn btn-clases">📋 Listar Clases</a>
+        {% endif %}
+
+        <!-- CLIENTE -->
+        {% if role_name == "Cliente" %}
+          <a href="{% url 'listar_clases' %}" class="btn btn-inscribirse">📋 Ver Clases Disponibles</a>
+          <a href="{% url 'editar_perfil' user.id %}" class="btn btn-editar">⚙️ Editar Perfil</a>
+        {% endif %}
+
+        <!-- Cerrar sesión -->
+        <form method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-logout">🔒 Cerrar Sesión</button>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>
