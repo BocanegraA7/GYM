@@ -1,120 +1,86 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Inicio - GymPower</title>
-    <style>
-      body {
-        margin: 0;
-        padding: 0;
-        font-family: "Segoe UI", sans-serif;
-        background: linear-gradient(135deg, #1e1e2f, #3c3c64);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        color: white;
-      }
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - GymPower</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+<div class="dashboard-wrapper">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fas fa-dumbbell"></i> GYM POWER</h2>
+            <small style="color: var(--text-dim)">Panel de {{ role_name }}</small>
+        </div>
 
-      .home-container {
-        background: #2c2c3e;
-        padding: 40px 50px;
-        border-radius: 20px;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-        width: 90%;
-        max-width: 800px;
-        text-align: center;
-        animation: fadeIn 1s forwards;
-        opacity: 0;
-        transform: translateY(-20px);
-      }
+        <nav class="nav-menu" style="flex-grow: 1;">
+            <a href="#" class="nav-link active"><i class="fas fa-home"></i> Inicio</a>
+            
+            {% if role_name == "Administrador" %}
+                <p class="menu-label">Logística</p>
+                <a href="{% url 'listar_clases' %}" class="nav-link"><i class="fas fa-calendar-alt"></i> Gestión de Clases</a>
+                <a href="{% url 'reportes' %}" class="nav-link"><i class="fas fa-chart-pie"></i> Reportes Mensuales</a>
+                
+                <p class="menu-label">Usuarios</p>
+                <a href="{% url 'listar_usuarios' %}" class="nav-link"><i class="fas fa-users-cog"></i> Control de Usuarios</a>
+                <a href="{% url 'notificaciones' %}" class="nav-link"><i class="fas fa-bell"></i> Comunicados</a>
+            {% endif %}
 
-      @keyframes fadeIn {
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
+            {% if role_name == "Cliente" %}
+                <a href="{% url 'listar_clases' %}" class="nav-link"><i class="fas fa-dumbbells"></i> Mis Clases</a>
+                <a href="{% url 'editar_perfil' user.id %}" class="nav-link"><i class="fas fa-user-edit"></i> Mi Perfil</a>
+            {% endif %}
+        </nav>
 
-      h1 {
-        color: #00e0ff;
-        margin-bottom: 10px;
-      }
+        <div class="sidebar-footer">
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-logout" style="width: 100%; display: flex; align-items: center; gap: 10px; justify-content: center;">
+                    <i class="fas fa-sign-out-alt"></i> 
+                    <span>Cerrar Sesión</span>
+                </button>
+            </form>
+        </div>
+    </aside>
 
-      p {
-        margin-bottom: 20px;
-      }
+    <main class="main-content">
+        <header>
+            <h1>Hola, {{ user.username }}</h1>
+            <p style="color: var(--text-muted)">Esto es lo que está pasando hoy en el gimnasio.</p>
+        </header>
 
-      .actions {
-        display: flex;
-        justify-content: center;
-        gap: 15px;
-        flex-wrap: wrap;
-        margin-top: 20px;
-      }
-
-      .btn {
-        padding: 12px 20px;
-        border: none;
-        border-radius: 10px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: background-color 0.3s, box-shadow 0.3s, transform 0.2s;
-        text-decoration: none;
-        color: white;
-        display: inline-block;
-      }
-
-      .btn-reportes { background-color: #0088cc; }
-      .btn-clases { background-color: #6c5ce7; }
-      .btn-editar { background-color: #0984e3; }
-      .btn-inscribirse { background-color: #00b894; }
-      .btn-logout { background-color: #e74c3c; }
-      .btn-usuarios { background-color: #d35400; }
-      .btn-eliminar { background-color: #c0392b; }
-
-      .btn:hover {
-        box-shadow: 0 5px 15px rgba(0, 224, 255, 0.5);
-        transform: scale(1.05);
-      }
-
-      form { display: inline; }
-    </style>
-  </head>
-
-  <body>
-    <div class="home-container">
-      <h1>🏋️ Bienvenido, {{ user.username }}</h1>
-      <p>Has iniciado sesión correctamente. Usa las opciones de abajo para navegar.</p>
-
-      <div class="actions">
-        <!-- ADMINISTRADOR -->
         {% if role_name == "Administrador" %}
-          <a href="{% url 'crear_clase' %}" class="btn btn-clases">➕ Crear Clase</a>
-          <a href="{% url 'listar_clases' %}" class="btn btn-clases">📋 Listar Clases</a>
-          <a href="{% url 'reportes' %}" class="btn btn-reportes">📊 Ver Reportes</a>
-          <a href="{% url 'notificaciones' %}" class="btn btn-inscribirse">📢 Enviar Notificación</a>
-          <a href="{% url 'listar_usuarios' %}" class="btn btn-usuarios">👥 Gestionar Usuarios</a>
-        {% endif %}
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Usuarios Totales</h3>
+                <div class="value">1,240</div>
+                <small style="color: var(--color-success)">+5% este mes</small>
+            </div>
+            <div class="stat-card">
+                <h3>Clases Hoy</h3>
+                <div class="value">12</div>
+                <small>8:00 AM - 9:00 PM</small>
+            </div>
+            <div class="stat-card">
+                <h3>Ingresos</h3>
+                <div class="value">$2.4M</div>
+                <small style="color: var(--accent-color)">COP</small>
+            </div>
+        </div>
 
-        <!-- ENTRENADOR -->
-        {% if role_name == "Entrenador" %}
-          <a href="{% url 'crear_clase' %}" class="btn btn-clases">➕ Crear Clase</a>
-          <a href="{% url 'listar_clases' %}" class="btn btn-clases">📋 Listar Clases</a>
+        <div class="user-info">
+            <h2>Acciones Rápidas</h2>
+            <div class="actions" style="justify-content: flex-start;">
+                <a href="{% url 'crear_clase' %}" class="btn btn-clases"><i class="fas fa-plus"></i> Nueva Clase</a>
+                <a href="{% url 'reportes' %}" class="btn btn-reportes"><i class="fas fa-download"></i> Exportar PDF</a>
+            </div>
+        </div>
         {% endif %}
+    </main>
+</div>
 
-        <!-- CLIENTE -->
-        {% if role_name == "Cliente" %}
-          <a href="{% url 'listar_clases' %}" class="btn btn-inscribirse">📋 Ver Clases Disponibles</a>
-          <a href="{% url 'editar_perfil' user.id %}" class="btn btn-editar">⚙️ Editar Perfil</a>
-        {% endif %}
-
-        <!-- Cerrar sesión -->
-        <form method="post" action="{% url 'logout' %}">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-logout">🔒 Cerrar Sesión</button>
-        </form>
-      </div>
-    </div>
-  </body>
+</body>
 </html>

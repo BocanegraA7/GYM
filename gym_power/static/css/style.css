@@ -1,0 +1,322 @@
+/* 1. VARIABLES MAESTRAS  */
+:root {
+  /* Paleta de colores */
+  --bg-gradient: linear-gradient(135deg, #1e1e2f, #3c3c64);
+  --card-bg: #2c2c3e;
+  --input-bg: #3b3b55;
+  --input-focus: #4a4a6a;
+  
+  /* Colores de Marca */
+  --accent-color: #00e0ff;      /* Cyan principal */
+  --text-main: #ffffff;
+  --text-muted: #cccccc;
+  --text-dim: #bbbbbb;
+  
+  /* Colores de Estado (Botones) */
+  --color-info: #0088cc;        /* Reportes */
+  --color-primary: #6c5ce7;     /* Clases */
+  --color-edit: #0984e3;        /* Editar */
+  --color-success: #00b894;     /* Inscribirse */
+  --color-danger: #d63031;      /* Eliminar / Logout */
+  
+  /* Otros */
+  --border-radius: 20px;
+  --btn-radius: 12px;
+  --shadow: 0 0 25px rgba(0, 0, 0, 0.5);
+  --transition: all 0.3s ease;
+}
+
+/* 2. RESET Y ESTILOS GLOBALES */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Segoe UI", sans-serif;
+    background: var(--bg-gradient);
+    color: var(--text-main);
+    min-height: 100vh;
+}
+
+/* 3. CONTENEDORES */
+.home-container {
+  background: var(--card-bg);
+  padding: 40px 50px;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  width: 95%;
+  max-width: 700px;
+  text-align: center;
+  animation: fadeIn 0.8s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 4. TIPOGRAFÍA */
+h1 {
+  color: var(--accent-color);
+  margin-bottom: 10px;
+  font-size: 2rem;
+  text-shadow: 0 0 10px rgba(0, 224, 255, 0.3);
+}
+
+h2 { font-size: 1.5rem; }
+
+p {
+  margin-bottom: 20px;
+  color: var(--text-muted);
+}
+
+/* 5. BOTONES */
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-top: 25px;
+}
+
+.btn {
+  padding: 12px 22px;
+  border: none;
+  border-radius: var(--btn-radius);
+  cursor: pointer;
+  font-weight: bold;
+  transition: var(--transition);
+  text-decoration: none;
+  color: white;
+  display: inline-block;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+}
+
+.btn:hover {
+  transform: translateY(-3px) scale(1.05);
+  filter: brightness(1.1);
+  box-shadow: 0 8px 15px rgba(0, 224, 255, 0.2);
+}
+
+/* Clases semánticas de botones */
+.btn-reportes   { background-color: var(--color-info); }
+.btn-clases     { background-color: var(--color-primary); }
+.btn-editar     { background-color: var(--color-edit); }
+.btn-inscribirse{ background-color: var(--color-success); }
+.btn-eliminar, 
+.btn-logout     { background-color: var(--color-danger); }
+
+/* 6. FORMULARIOS */
+input, select, textarea {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  font-size: 1rem;
+  background: var(--input-bg);
+  color: white;
+  outline: none;
+  transition: var(--transition);
+  box-sizing: border-box; /* Evita que el padding ensanche el input */
+}
+
+input:focus, select:focus, textarea:focus {
+  background: var(--input-focus);
+  border-color: var(--accent-color);
+  box-shadow: 0 0 8px var(--accent-color);
+}
+
+/* 7. TABLAS */
+table {
+  width: 100%;
+  margin-top: 25px;
+  border-collapse: collapse;
+  color: #ddd;
+}
+
+th, td {
+  padding: 14px 10px;
+  text-align: center;
+  border-bottom: 1px solid #444;
+}
+
+th {
+  color: var(--accent-color);
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 1.5px;
+}
+
+tr:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* 8. COMPONENTES EXTRA */
+.user-info {
+  background: rgba(60, 60, 100, 0.5);
+  padding: 20px;
+  border-radius: 15px;
+  margin-top: 25px;
+  border: 1px solid rgba(0, 224, 255, 0.1);
+}
+
+.user-info h2 {
+  color: var(--accent-color);
+  margin-top: 0;
+}
+
+/* 9. RESPONSIVIDAD */
+@media (max-width: 768px) {
+  .home-container {
+    padding: 30px 20px;
+  }
+
+  .btn {
+    width: 100%;
+  }
+
+  table {
+    display: block;
+    overflow-x: auto; /* Para que la tabla no rompa el diseño en móviles */
+  }
+}
+
+
+/* --- LAYOUT DEL DASHBOARD --- */
+.dashboard-wrapper {
+    display: flex;
+    width: 100vw;
+    min-height: 100vh;
+    position: absolute; 
+    top: 0;
+    left: 0;
+    text-align: left;
+}
+
+.sidebar {
+    width: 260px;
+    min-width: 260px;
+    background: var(--card-bg);
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    border-right: 1px solid rgba(255,255,255,0.05);
+}
+.main-content {
+    flex: 1;
+    padding: 40px;
+    background: var(--bg-gradient);
+    overflow-y: auto;
+}
+
+.menu-label {
+    font-size: 0.7rem;
+    color: #666;
+    margin: 20px 0 10px 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.sidebar-footer {
+    padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    margin-top: 10px;
+}
+
+.sidebar-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.sidebar-header h2 {
+    font-size: 1.2rem;
+    color: var(--accent-color);
+    letter-spacing: 1px;
+}
+
+.nav-menu {
+    flex-grow: 1;
+    display: flex;        
+    flex-direction: column; 
+    width: 100%;          
+    margin-top: 20px;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    color: var(--text-muted);
+    text-decoration: none;
+    border-radius: var(--btn-radius);
+    margin-bottom: 8px;
+    transition: var(--transition);
+    font-size: 0.95rem;
+    width: 100%;          
+    box-sizing: border-box; 
+}
+
+.nav-link i {
+    margin-right: 12px;
+    width: 20px;
+    text-align: center;
+}
+
+.nav-link:hover {
+    background: rgba(0, 224, 255, 0.1);
+    color: var(--accent-color);
+    transform: translateX(5px);
+}
+
+.nav-link.active {
+    background: var(--accent-color);
+    color: #000;
+}
+
+/* Área de Contenido Principal */
+.main-content {
+    flex: 1;
+    padding: 40px;
+    background: var(--bg-gradient);
+    overflow-y: auto;
+}
+
+/* Tarjetas de Estadísticas (KPIs) */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.stat-card {
+  background: var(--card-bg);
+  padding: 20px;
+  border-radius: 15px;
+  border-left: 4px solid var(--accent-color); /* Rayita de color al lado */
+  transition: transform 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  background: #34344d;
+}
+
+.stat-card h3 {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+.stat-card .value {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: var(--accent-color);
+}
+
+.auth-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100%;
+}

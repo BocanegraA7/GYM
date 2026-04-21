@@ -96,8 +96,12 @@ USE_I18N = True
 USE_TZ = True
 
 # --- Archivos estáticos ---
-STATIC_URL = 'static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]  # opcional, si usas /static localmente
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR, 'gym_power', 'static'),
+]
+
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # --- Configuración de Login/Logout ---

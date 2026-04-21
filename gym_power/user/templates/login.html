@@ -1,149 +1,52 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iniciar sesión - GymPower</title>
-    <!-- CDN de Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #1e1e2f, #3c3c64);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            color: white;
-        }
-
-        .login-container {
-            background: #2c2c3e;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-            text-align: center;
-            width: 350px;
-            opacity: 0;
-            transform: translateY(-20px);
-            animation: fadeIn 1s forwards;
-        }
-
-        @keyframes fadeIn {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .login-container img {
-            width: 60px;
-            margin-bottom: 20px;
-        }
-
-        .login-container h2 {
-            color: #00e0ff;
-            margin-bottom: 30px;
-        }
-
-        form {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .input-group {
-            width: 100%;
-            position: relative;
-            margin-bottom: 15px;
-        }
-
-        input[type="text"],
-        input[type="password"] {
-            width: 100%;
-            height: 42px; /* altura uniforme */
-            padding: 10px 40px 10px 12px; /* espacio derecho para el ícono */
-            border: none;
-            border-radius: 8px;
-            font-size: 15px;
-            box-sizing: border-box;
-        }
-
-        .toggle-password {
-            position: absolute;
-            top: 50%;
-            right: 12px;
-            transform: translateY(-50%);
-            cursor: pointer;
-            user-select: none;
-            font-size: 16px;
-            color: #888;
-        }
-
-        .toggle-password:hover {
-            color: #00e0ff;
-        }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            background-color: #00e0ff;
-            color: #000;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 15px;
-            transition: background-color 0.3s, box-shadow 0.3s;
-        }
-
-        button:hover {
-            background-color: #00c3e1;
-            box-shadow: 0 5px 15px rgba(0, 224, 255, 0.5);
-        }
-
-        .error {
-            color: #ff5050;
-            margin-top: 10px;
-        }
-
-        .forgot-link {
-            display: block;
-            margin-top: 15px;
-            color: #00e0ff;
-            font-size: 14px;
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-
-        .forgot-link:hover {
-            color: #00b8cc;
-            text-decoration: underline;
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 
-<body>
-    <div class="login-container">
-        <img src="https://www.svgrepo.com/show/18057/dumbbell.svg" alt="Pesas">
-        <h2>Bienvenido a GymPower</h2>
+<body class="auth-page">
+    <div class="home-container">
+        <img src="https://www.svgrepo.com/show/18057/dumbbell.svg" alt="Pesas" style="width: 60px; margin-bottom: 20px; filter: drop-shadow(0 0 5px var(--accent-color));">
+        
+        <h1>Bienvenido a GymPower</h1>
+        <p>Entrena con los mejores</p>
 
         <form method="POST">
             {% csrf_token %}
-            <div class="input-group">
+            
+            <div class="input-group" style="width: 100%; position: relative;">
                 <input type="text" name="username" placeholder="Usuario" required>
             </div>
-            <div class="input-group">
+            
+            <div class="input-group" style="width: 100%; position: relative;">
                 <input type="password" name="password" id="password" placeholder="Contraseña" required>
-                <i class="fa-solid fa-eye toggle-password" id="togglePassword" onclick="togglePassword()"></i>
+                <i class="fa-solid fa-eye" id="togglePassword" onclick="togglePassword()" 
+                   style="position: absolute; right: 15px; top: 25px; cursor: pointer; color: var(--text-dim);"></i>
             </div>
-            <button type="submit">Iniciar sesión</button>
-            <a href="{% url 'password_reset' %}" class="forgot-link">¿Olvidaste tu contraseña?</a>
-            <a href="{% url 'signup' %}" class="forgot-link">Regístrate Ahora</a>
+
+            <div class="actions" style="flex-direction: column; width: 100%;">
+                <button type="submit" class="btn btn-inscribirse" style="width: 100%;">
+                    Iniciar sesión
+                </button>
+                
+                <div style="margin-top: 15px; display: flex; flex-direction: column; gap: 10px;">
+                    <a href="{% url 'password_reset' %}" style="color: var(--accent-color); text-decoration: none; font-size: 0.9rem;">
+                        ¿Olvidaste tu contraseña?
+                    </a>
+                    <a href="{% url 'signup' %}" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">
+                        ¿No tienes cuenta? <span style="color: var(--color-primary);">Regístrate Ahora</span>
+                    </a>
+                </div>
+            </div>
+
             {% if error %}
-            <p class="error">{{ error }}</p>
+            <p style="color: var(--color-danger); margin-top: 15px;">{{ error }}</p>
             {% endif %}
         </form>
     </div>
@@ -160,6 +63,4 @@
         }
     </script>
 </body>
-
 </html>
-
