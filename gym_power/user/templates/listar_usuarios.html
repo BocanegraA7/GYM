@@ -1,167 +1,120 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
-  <head>
+<head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista de Usuarios - GymPower</title>
-    <style>
-      body {
-        margin: 0;
-        padding: 0;
-        font-family: "Segoe UI", sans-serif;
-        background: linear-gradient(135deg, #1e1e2f, #3c3c64);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        color: white;
-      }
+    <link rel="stylesheet" href="{% static 'css/usuarios.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
 
-      .home-container {
-        background: #2c2c3e;
-        padding: 40px 50px;
-        border-radius: 20px;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-        width: 90%;
-        max-width: 900px;
-        text-align: center;
-        animation: fadeIn 1s forwards;
-        opacity: 0;
-        transform: translateY(-20px);
-      }
-
-      @keyframes fadeIn {
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      h1 {
-        color: #00e0ff;
-        margin-bottom: 10px;
-      }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-      }
-
-      th,
-      td {
-        padding: 12px 15px;
-        border-bottom: 1px solid #444;
-        text-align: left;
-      }
-
-      th {
-        background-color: #3c3c64;
-        color: #00e0ff;
-      }
-
-      tr:hover {
-        background-color: rgba(255, 255, 255, 0.05);
-      }
-
-      .btn {
-        padding: 10px 16px;
-        border: none;
-        border-radius: 10px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: background-color 0.3s, box-shadow 0.3s, transform 0.2s;
-        text-decoration: none;
-        color: white;
-        display: inline-block;
-      }
-
-      .btn-editar {
-        background-color: #0984e3;
-      }
-      .btn-eliminar {
-        background-color: #e74c3c;
-      }
-      .btn-volver {
-        background-color: #636e72;
-        margin-top: 20px;
-      }
-
-      .btn:hover {
-        box-shadow: 0 5px 15px rgba(0, 224, 255, 0.5);
-        transform: scale(1.05);
-      }
-
-      form {
-        display: inline;
-      }
-    </style>
-  </head>
-
-  <body>
+<body>
     <div class="home-container">
-      <h1>👥 Lista de Usuarios</h1>
-      <p>Aquí puedes ver todos los usuarios registrados en el sistema.</p>
+        <h1>👥 Lista de Usuarios</h1>
+        <p>Aquí puedes ver todos los usuarios registrados en el sistema.</p>
 
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Usuario</th>
-            <th>Email</th>
-            <th>Nombre</th>
-            <th>Apellido</th>
-            <th>Rol</th>
-            <th>Estado</th>
-            {% if role_name == "Administrador" %}
-            <th>Acciones</th>
-            {% endif %}
-          </tr>
-        </thead>
-        <tbody>
-          {% for usuario in usuarios %}
-          <tr>
-            <td>{{ usuario.id }}</td>
-            <td>{{ usuario.username }}</td>
-            <td>{{ usuario.email }}</td>
-            <td>{{ usuario.first_name }}</td>
-            <td>{{ usuario.last_name }}</td>
-            <td>{{ usuario.role.nombre }}</td>
-            <td>{{ usuario.estado }}</td>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Usuario</th>
+                        <th>Email</th>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        {% if role_name == "Administrador" %}
+                        <th>Acciones</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for usuario in usuarios %}
+                    <tr>
+                        <td>{{ usuario.id }}</td>
+                        <td><strong>{{ usuario.username }}</strong></td>
+                        <td>{{ usuario.email }}</td>
+                        <td>{{ usuario.first_name }}</td>
+                        <td>{{ usuario.last_name }}</td>
+                        <td><span class="badge">{{ usuario.role.nombre }}</span></td>
+                        <td>{{ usuario.estado }}</td>
 
-            {% if role_name == "Administrador" %}
-            <td>
-              <a
-                href="{% url 'editar_usuario' usuario.id %}"
-                class="btn btn-editar"
-                >✏️ Editar</a
-              >
-              <form
-                method="post"
-                action="{% url 'eliminar_usuario' usuario.id %}"
-              >
-                {% csrf_token %}
-                <button
-                  type="submit"
-                  class="btn btn-eliminar"
-                  onclick="return confirm('¿Seguro que deseas eliminar este usuario?');"
-                >
-                  🗑️ Eliminar
-                </button>
-              </form>
-            </td>
-            {% endif %}
-          </tr>
-          {% empty %}
-          <tr>
-            <td colspan="8" style="text-align: center">
-              No hay usuarios registrados.
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+                        {% if role_name == "Administrador" %}
+                        <td>
+                            <div class="action-group">
+                                <a href="{% url 'editar_usuario' usuario.id %}" class="btn btn-editar">✏️</a>
+                                
+                                <button type="button" class="btn btn-eliminar" 
+                                        onclick="confirmarEliminarUsuario('{{ usuario.id }}', '{{ usuario.username|escapejs }}')">
+                                    🗑️
+                                </button>
 
-      <a href="{% url 'home' %}" class="btn btn-volver">⬅️ Volver al inicio</a>
+                                <form id="form-eliminar-user-{{ usuario.id }}" 
+                                      action="{% url 'eliminar_usuario' usuario.id %}" 
+                                      method="POST" style="display:none;">
+                                    {% csrf_token %}
+                                </form>
+                            </div>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="empty-row">No hay usuarios registrados.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <a href="{% url 'home' %}" class="btn btn-volver">⬅️ Volver al inicio</a>
     </div>
-  </body>
+
+    <script>
+        // 1. Notificación de éxito al cargar la página
+        const mensajes = [
+            {% if messages %}
+                {% for m in messages %} "{{ m|escapejs }}", {% endfor %}
+            {% endif %}
+        ];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (mensajes.length > 0) {
+                mensajes.forEach(msg => {
+                    Swal.fire({
+                        title: "¡Hecho!",
+                        text: msg,
+                        icon: "success",
+                        timer: 2500,
+                        showConfirmButton: false,
+                        background: '#2c2c3e',
+                        color: '#ffffff'
+                    });
+                });
+            }
+        });
+
+        // 2. Función para confirmar eliminación de usuario
+        function confirmarEliminarUsuario(id, username) {
+            Swal.fire({
+                title: '¿Eliminar usuario?',
+                text: `Vas a borrar a "${username}". Esta acción es irreversible.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e74c3c',
+                cancelButtonColor: '#636e72',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar',
+                background: '#2c2c3e',
+                color: '#ffffff'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('form-eliminar-user-' + id).submit();
+                }
+            });
+        }
+    </script>
+</body>
 </html>

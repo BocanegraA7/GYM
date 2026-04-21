@@ -2,78 +2,99 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Crear Clase - GymPower</title>
-  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Clase - GymPower</title>
+    <link rel="stylesheet" href="{% static 'css/crear_clase.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
-  <div class="home-container">
-    <h1>➕ Crear Nueva Clase</h1>
-    <p>Completa los datos de la clase que deseas agregar al gimnasio.</p>
+    <div class="home-container">
+        <h1>➕ Crear Nueva Clase</h1>
+        <p>Completa los datos de la clase que deseas agregar al gimnasio.</p>
 
-    <!-- Mostrar errores del formulario -->
-    {% if form.errors %}
-      <div class="alert alert-error">
-        <strong>❌ Corrige los siguientes errores:</strong>
-        <ul>
-          {% for field, errors in form.errors.items %}
-            <li><strong>{{ field|capfirst }}</strong>: {{ errors|join:", " }}</li>
-          {% endfor %}
-        </ul>
-      </div>
-    {% endif %}
+        {% if form.errors %}
+            <div class="alert-error-container">
+                <strong>❌ Hay errores en el formulario:</strong>
+                <ul>
+                    {% for field, errors in form.errors.items %}
+                        <li>{{ field|capfirst }}: {{ errors|join:", " }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
 
-    <form method="post" class="form-container">
-      {% csrf_token %}
-      <div class="form-group">
-        <label for="id_nombre">Nombre de la clase:</label>
-        {{ form.nombre }}
-      </div>
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label>Nombre de la clase:</label>
+                    {{ form.nombre }}
+                </div>
 
-      <div class="form-group">
-        <label for="id_descripcion">Descripción:</label>
-        {{ form.descripcion }}
-      </div>
+                <div class="form-group full-width">
+                    <label>Descripción:</label>
+                    {{ form.descripcion }}
+                </div>
 
-      <div class="form-group">
-        <label for="id_entrenador">Entrenador:</label>
-        {{ form.entrenador }}
-      </div>
+                <div class="form-group">
+                    <label>Entrenador:</label>
+                    {{ form.entrenador }}
+                </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label for="id_fecha">Fecha:</label>
-          {{ form.fecha }}
-        </div>
+                <div class="form-group">
+                    <label>Lugar:</label>
+                    {{ form.lugar }}
+                </div>
 
-        <div class="form-group">
-          <label for="id_hora">Hora:</label>
-          {{ form.hora }}
-        </div>
-      </div>
+                <div class="form-group">
+                    <label>Fecha:</label>
+                    {{ form.fecha }}
+                </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label for="id_duracion_min">Duración (minutos):</label>
-          {{ form.duracion_min }}
-        </div>
+                <div class="form-group">
+                    <label>Hora:</label>
+                    {{ form.hora }}
+                </div>
 
-        <div class="form-group">
-          <label for="id_cupos">Cupos disponibles:</label>
-          {{ form.cupos }}
-        </div>
-      </div>
+                <div class="form-group">
+                    <label>Duración (min):</label>
+                    {{ form.duracion_min }}
+                </div>
 
-      <div class="form-group">
-        <label for="id_lugar">Lugar:</label>
-        {{ form.lugar }}
-      </div>
+                <div class="form-group">
+                    <label>Cupos:</label>
+                    {{ form.cupos }}
+                </div>
+            </div>
 
-      <div class="form-buttons">
-        <button type="submit" class="btn btn-clases">💾 Guardar Clase</button>
-        <a href="{% url 'listar_clases' %}" class="btn btn-reportes">↩️ Volver</a>
-      </div>
-    </form>
-  </div>
+            <div class="form-buttons">
+                <button type="submit" class="btn btn-editar">💾 Guardar Clase</button>
+                <a href="{% url 'home' %}" class="btn btn-volver">↩️ Volver</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Si hay un mensaje de éxito al redireccionar (por si usas la misma vista para editar)
+        const mensajes = [
+            {% if messages %}
+                {% for m in messages %} "{{ m|escapejs }}", {% endfor %}
+            {% endif %}
+        ];
+
+        if (mensajes.length > 0) {
+            Swal.fire({
+                title: "¡Logrado!",
+                text: mensajes[0],
+                icon: "success",
+                background: '#2c2c3e',
+                color: '#ffffff',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        }
+    </script>
 </body>
 </html>

@@ -1,0 +1,164 @@
+/* Paleta de colores GymPower */
+:root {
+    --bg-dark: #1e1e2f;
+    --card-bg: #2c2c3e;
+    --accent-blue: #00e0ff;
+    --btn-save: #0984e3;
+    --btn-hover: #00a8ff;
+    --btn-gray: #636e72;
+    --text-white: #ffffff;
+    --error-red: #ff4757;
+}
+
+/* Estilos globales */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: var(--bg-dark);
+    color: var(--text-white);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.home-container {
+    background: var(--card-bg);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    width: 90%;
+    max-width: 800px;
+    margin: 40px auto;
+    animation: slideUp 0.6s ease-out;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+h1 {
+    color: var(--accent-blue);
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+p {
+    text-align: center;
+    color: #b2bec3;
+    margin-bottom: 30px;
+}
+
+/* Diseño del Formulario */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Dos columnas */
+    gap: 20px;
+}
+
+.form-gym {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Dos columnas */
+    gap: 20px;
+}
+
+.full-width {
+    grid-column: span 2;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--accent-blue);
+}
+
+/* Estilo de los Inputs de Django */
+.form-group input, 
+.form-group select, 
+.form-group textarea {
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #444;
+    background: var(--bg-dark);
+    color: white;
+    font-size: 1rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-group input:focus, 
+.form-group select:focus, 
+.form-group textarea:focus {
+    border-color: var(--accent-blue);
+    outline: none;
+    box-shadow: 0 0 8px rgba(0, 224, 255, 0.3);
+}
+
+textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* Contenedor de Botones */
+.form-buttons {
+    grid-column: span 2;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.btn {
+    padding: 12px 28px;
+    border: none;
+    border-radius: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: white;
+}
+
+.btn-editar {
+    background: var(--btn-save);
+    box-shadow: 0 4px 15px rgba(9, 132, 227, 0.3);
+}
+
+.btn-editar:hover {
+    background: var(--btn-hover);
+    transform: translateY(-2px);
+}
+
+.btn-volver {
+    background: var(--btn-gray);
+}
+
+.btn-volver:hover {
+    background: #b2bec3;
+    color: #2d3436;
+}
+
+/* Errores */
+.alert-error-container {
+    background: rgba(255, 71, 87, 0.1);
+    border: 1px solid var(--error-red);
+    padding: 15px;
+    border-radius: 10px;
+    color: #ff9f94;
+    margin-bottom: 20px;
+}
+
+.alert-error-container ul {
+    list-style-position: inside;
+    margin-top: 10px;
+}

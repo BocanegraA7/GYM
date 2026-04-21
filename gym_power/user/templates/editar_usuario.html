@@ -4,19 +4,32 @@
 <head>
   <meta charset="UTF-8">
   <title>Editar Perfil</title>
-  <link rel="stylesheet" href="{}">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
-<body>
-  <div class="home-container">
-    <h1>⚙️ Editar Información del Usuario</h1>
+<body class="auth-page">
+<div class="home-container">
+    <h1>👤 Editar Perfil</h1>
+    <p>Actualiza tu información personal abajo.</p>
 
     <form method="POST">
       {% csrf_token %}
-      {{ form.as_p }}
-      <button type="submit" class="btn btn-clases">💾 Guardar Cambios</button>
-    </form>
+      
+      <div style="text-align: left; margin-bottom: 20px;">
+        {{ form.as_p }}
+      </div>
 
-    <a href="{% url 'home' %}" class="btn btn-reportes">🏠 Volver al Inicio</a>
-  </div>
+      <div style="display: flex; justify-content: center; gap: 15px; margin-top: 25px;">
+        
+        <button type="submit" class="btn btn-editar" style="margin: 0; min-width: 180px;">
+          💾 Guardar Cambios
+        </button>
+
+        <a href="{% url 'home' %}" class="btn btn-volver" style="margin: 0; min-width: 180px; display: inline-flex; align-items: center; justify-content: center;">
+          🏠 Volver al Inicio
+        </a>
+
+      </div>
+    </form>
+</div>
 </body>
 </html>
