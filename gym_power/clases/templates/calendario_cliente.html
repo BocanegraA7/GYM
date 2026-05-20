@@ -1,0 +1,410 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Calendario - GymPower</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <!-- FullCalendar CDN -->
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css' rel='stylesheet' />
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .calendar-card {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: 10px;
+        }
+        /* Custom styles for FullCalendar inside dark theme */
+        .fc {
+            --fc-border-color: #3e3e56;
+            --fc-page-bg-color: #2c2c3e;
+            --fc-neutral-bg-color: #1e1e2f;
+            --fc-list-event-hover-bg-color: rgba(0, 224, 255, 0.1);
+            color: #fff;
+            font-family: inherit;
+        }
+        .fc .fc-toolbar-title {
+            color: var(--accent-color);
+            font-size: 1.5rem;
+            text-shadow: 0 0 8px rgba(0, 224, 255, 0.2);
+        }
+        .fc .fc-button-primary {
+            background-color: var(--input-bg);
+            border-color: #3e3e56;
+            color: #fff;
+            font-weight: bold;
+            text-transform: capitalize;
+            transition: var(--transition);
+        }
+        .fc .fc-button-primary:hover, .fc .fc-button-primary:focus {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+            color: #000;
+            box-shadow: 0 0 10px var(--accent-color);
+        }
+        .fc .fc-button-active {
+            background-color: var(--accent-color) !important;
+            border-color: var(--accent-color) !important;
+            color: #000 !important;
+        }
+        .fc-theme-standard td, .fc-theme-standard th {
+            border: 1px solid #3e3e56;
+        }
+        .fc-day-today {
+            background: rgba(0, 224, 255, 0.05) !important;
+        }
+        /* Event styles */
+        .fc-event {
+            border: none !important;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: transform 0.2s, filter 0.2s;
+        }
+        .fc-event:hover {
+            transform: scale(1.02);
+            filter: brightness(1.15);
+        }
+        .event-inscrito {
+            background: linear-gradient(135deg, #00d2ff, #0088cc) !important;
+            color: #000 !important;
+            border-left: 4px solid #fff !important;
+        }
+        .event-disponible {
+            background: linear-gradient(135deg, #6c5ce7, #4b3bb3) !important;
+            color: #fff !important;
+        }
+        .event-lleno {
+            background: linear-gradient(135deg, #4e4e61, #3b3b4a) !important;
+            color: #bbb !important;
+            cursor: not-allowed;
+        }
+        .event-pasada {
+            background: rgba(255,255,255,0.05) !important;
+            color: #666 !important;
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+        /* Modal customizations */
+        .swal2-popup.swal-gym {
+            background: #2c2c3e !important;
+            color: #fff !important;
+            border: 1px solid #3e3e56 !important;
+            border-radius: 20px !important;
+        }
+        .swal-gym .swal2-title {
+            color: var(--accent-color) !important;
+        }
+        .swal-gym .swal2-html-container {
+            color: #ddd !important;
+        }
+        .repro-select {
+            width: 100%;
+            padding: 12px;
+            background: #1e1e2f;
+            color: white;
+            border: 1px solid #3e3e56;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard-wrapper">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fas fa-dumbbell"></i> GYM POWER</h2>
+            <small style="color: var(--text-dim)">Panel de {{ role_name }}</small>
+        </div>
+
+        <nav class="nav-menu" style="flex-grow: 1;">
+            <a href="{% url 'home' %}" class="nav-link"><i class="fas fa-home"></i> Inicio</a>
+            
+            {% if role_name == "Administrador" %}
+                <p class="menu-label">Logística</p>
+                <a href="{% url 'listar_clases' %}" class="nav-link"><i class="fas fa-calendar-alt"></i> Gestión de Clases</a>
+                <a href="{% url 'reportes' %}" class="nav-link"><i class="fas fa-chart-pie"></i> Reportes Mensuales</a>
+                
+                <p class="menu-label">Usuarios</p>
+                <a href="{% url 'listar_usuarios' %}" class="nav-link"><i class="fas fa-users-cog"></i> Control de Usuarios</a>
+                <a href="{% url 'notificaciones' %}" class="nav-link"><i class="fas fa-bell"></i> Comunicados</a>
+            {% endif %}
+
+            {% if role_name == "Cliente" %}
+                <p class="menu-label">Mi Agenda</p>
+                <a href="{% url 'calendario_cliente' %}" class="nav-link active"><i class="fas fa-calendar-days"></i> Mi Calendario</a>
+                <a href="{% url 'listar_clases' %}" class="nav-link"><i class="fas fa-dumbbells"></i> Ver Clases</a>
+                {% if perfil %}
+                <a href="{% url 'editar_usuario' perfil.id %}" class="nav-link"><i class="fas fa-user-edit"></i> Mi Perfil</a>
+                {% endif %}
+            {% endif %}
+
+            {% if role_name == "Entrenador" %}
+                <p class="menu-label">Entrenamientos</p>
+                <a href="{% url 'listar_clases' %}" class="nav-link"><i class="fas fa-calendar-alt"></i> Ver Clases</a>
+                <a href="{% url 'crear_clase' %}" class="nav-link"><i class="fas fa-plus-circle"></i> Crear Clase</a>
+                {% if perfil %}
+                <a href="{% url 'editar_usuario' perfil.id %}" class="nav-link"><i class="fas fa-user-edit"></i> Mi Perfil</a>
+                {% endif %}
+            {% endif %}
+        </nav>
+
+        <div class="sidebar-footer">
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-logout" style="width: 100%; display: flex; align-items: center; gap: 10px; justify-content: center;">
+                    <i class="fas fa-sign-out-alt"></i> 
+                    <span>Cerrar Sesión</span>
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <!-- BREADCRUMBS -->
+        <nav aria-label="breadcrumb" class="breadcrumb-container">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}"><i class="fas fa-home"></i> Inicio</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Mi Calendario</li>
+            </ol>
+        </nav>
+
+        <header>
+            <h1>📅 Calendario Deportivo</h1>
+            <p style="color: var(--text-muted)">Haz clic en las clases para gestionarlas (Inscripción, Cancelación y Reprogramación en tiempo real).</p>
+        </header>
+
+        <div class="calendar-card">
+            <div id='calendar'></div>
+        </div>
+    </main>
+</div>
+
+<!-- Forms for actions -->
+<form id="enroll-form" method="post" action="" style="display:none;">
+    {% csrf_token %}
+</form>
+<form id="cancel-form" method="post" action="" style="display:none;">
+    {% csrf_token %}
+</form>
+<form id="repro-form" method="post" action="" style="display:none;">
+    {% csrf_token %}
+    <input type="hidden" name="nueva_clase_id" id="repro-nueva-clase-id">
+</form>
+
+<script>
+    // Inyección segura de datos de Django a JS
+    const clasesData = {{ clases_json|safe }};
+    const csrfToken = "{{ csrf_token }}";
+
+    // Mapeo de clases disponibles para reprogramar
+    const clasesDisponiblesRepro = [
+        {% for c in clases_disponibles_repro %}
+            {
+                id: "{{ c.id }}",
+                nombre: "{{ c.nombre|escapejs }}",
+                fecha: "{{ c.fecha }}",
+                hora: "{{ c.hora }}",
+                lugar: "{{ c.lugar|escapejs }}",
+                cupos: {{ c.cupos }}
+            },
+        {% endfor %}
+    ];
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Notificaciones iniciales de Django si existen
+        {% if messages %}
+            {% for message in messages %}
+                Swal.fire({
+                    title: "GymPower Informa",
+                    text: "{{ message|escapejs }}",
+                    icon: "{% if 'error' in message.tags %}error{% elif 'warning' in message.tags %}warning{% else %}success{% endif %}",
+                    background: '#2c2c3e',
+                    color: '#ffffff',
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            {% endfor %}
+        {% endif %}
+
+        const calendarEl = document.getElementById('calendar');
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            locale: 'es',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,listMonth'
+            },
+            buttonText: {
+                today: 'Hoy',
+                month: 'Mes',
+                week: 'Semana',
+                list: 'Agenda'
+            },
+            events: clasesData.map(c => {
+                let classType = 'event-disponible';
+                if (c.es_pasada) {
+                    classType = 'event-pasada';
+                } else if (c.inscrito) {
+                    classType = 'event-inscrito';
+                } else if (c.cupos <= 0) {
+                    classType = 'event-lleno';
+                }
+
+                return {
+                    id: c.id,
+                    title: (c.inscrito ? "✅ " : "") + c.title,
+                    start: c.start,
+                    className: classType,
+                    extendedProps: c
+                };
+            }),
+            eventClick: function(info) {
+                const props = info.event.extendedProps;
+                
+                let actionButtonsHtml = '';
+                
+                if (props.es_pasada) {
+                    actionButtonsHtml = `<p style="color:var(--color-danger); font-weight:bold;">⚠️ Esta clase ya ha finalizado. No es posible gestionarla.</p>`;
+                } else if (props.inscrito) {
+                    // Cliente ya inscrito en clase activa: Puede Cancelar o Reprogramar
+                    actionButtonsHtml = `
+                        <div style="display:flex; flex-direction:column; gap:10px; margin-top:15px;">
+                            <button class="btn btn-logout" onclick="cancelarClase(${props.id})">🗑️ Cancelar Inscripción</button>
+                            <button class="btn btn-clases" onclick="mostrarModalReprogramacion(${props.id}, '${props.title}')">🔄 Reprogramar Clase</button>
+                        </div>
+                    `;
+                } else {
+                    // Cliente no inscrito: Puede inscribirse si hay cupos
+                    if (props.cupos > 0) {
+                        actionButtonsHtml = `
+                            <button class="btn btn-inscribirse" style="margin-top:15px; width:100%;" onclick="inscribirClase(${props.id})">📝 Inscribirme Ahora</button>
+                        `;
+                    } else {
+                        actionButtonsHtml = `
+                            <button class="btn btn-logout" style="margin-top:15px; width:100%; cursor:not-allowed;" disabled>❌ Sin cupos disponibles</button>
+                        `;
+                    }
+                }
+
+                Swal.fire({
+                    title: props.title,
+                    html: `
+                        <div style="text-align: left; padding: 5px;">
+                            <p><b>Descripción:</b> ${props.description || 'Sin descripción.'}</p>
+                            <p><b>Entrenador:</b> ${props.entrenador}</p>
+                            <p><b>📍 Lugar:</b> ${props.lugar}</p>
+                            <p><b>🕒 Duración:</b> ${props.duracion} minutos</p>
+                            <p><b>🎟️ Cupos:</b> ${props.cupos} restantes</p>
+                        </div>
+                        ${actionButtonsHtml}
+                    `,
+                    showConfirmButton: false,
+                    showCloseButton: true,
+                    customClass: {
+                        popup: 'swal-gym'
+                    }
+                });
+            }
+        });
+        calendar.render();
+    });
+
+    // Action execution helpers
+    function inscribirClase(claseId) {
+        const form = document.getElementById('enroll-form');
+        form.action = `/clases/inscribirse/${claseId}/`;
+        form.submit();
+    }
+
+    function cancelarClase(claseId) {
+        Swal.fire({
+            title: '¿Cancelar inscripción?',
+            text: 'Liberarás tu cupo en esta clase. Podrás inscribirte nuevamente si sigue habiendo cupos.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, liberar cupo',
+            cancelButtonText: 'Mantener clase',
+            background: '#2c2c3e',
+            color: '#ffffff'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const form = document.getElementById('cancel-form');
+                form.action = `/clases/cancelar/${claseId}/`;
+                form.submit();
+            }
+        });
+    }
+
+    function mostrarModalReprogramacion(claseId, nombreClase) {
+        // Filtrar clases que no sean la actual
+        const opciones = clasesDisponiblesRepro.filter(c => c.id != claseId);
+        
+        if (opciones.length === 0) {
+            Swal.fire({
+                title: 'No hay opciones',
+                text: 'Lo sentimos, no hay otras clases futuras disponibles con cupos libres en este momento.',
+                icon: 'info',
+                background: '#2c2c3e',
+                color: '#ffffff'
+            });
+            return;
+        }
+
+        let selectHtml = `<select id="nueva-clase-select" class="repro-select">
+            <option value="">-- Elige un nuevo entrenamiento --</option>
+        `;
+        opciones.forEach(o => {
+            selectHtml += `<option value="${o.id}">${o.nombre} - ${o.fecha} (${o.hora}) | Lugar: ${o.lugar}</option>`;
+        });
+        selectHtml += `</select>`;
+
+        Swal.fire({
+            title: 'Reprogramar Entrenamiento',
+            html: `
+                <div style="text-align:left;">
+                    <p>Vas a reprogramar tu asistencia a <b>${nombreClase}</b>.</p>
+                    <p style="color:#aaa;">Selecciona cualquier otra clase disponible en el sistema:</p>
+                    ${selectHtml}
+                </div>
+            `,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#00d2ff',
+            confirmButtonText: 'Confirmar Cambio',
+            cancelButtonText: 'Regresar',
+            background: '#2c2c3e',
+            color: '#ffffff',
+            preConfirm: () => {
+                const val = document.getElementById('nueva-clase-select').value;
+                if (!val) {
+                    Swal.showValidationMessage('Debes seleccionar una clase de destino.');
+                }
+                return val;
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const form = document.getElementById('repro-form');
+                form.action = `/clases/reprogramar/${claseId}/`;
+                document.getElementById('repro-nueva-clase-id').value = result.value;
+                form.submit();
+            }
+        });
+    }
+</script>
+</body>
+</html>

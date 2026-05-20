@@ -17,7 +17,7 @@
         </div>
 
         <nav class="nav-menu" style="flex-grow: 1;">
-            <a href="#" class="nav-link active"><i class="fas fa-home"></i> Inicio</a>
+            <a href="{% url 'home' %}" class="nav-link active"><i class="fas fa-home"></i> Inicio</a>
             
             {% if role_name == "Administrador" %}
                 <p class="menu-label">Logística</p>
@@ -30,8 +30,21 @@
             {% endif %}
 
             {% if role_name == "Cliente" %}
-                <a href="{% url 'listar_clases' %}" class="nav-link"><i class="fas fa-dumbbells"></i> Mis Clases</a>
-                <a href="{% url 'editar_perfil' user.id %}" class="nav-link"><i class="fas fa-user-edit"></i> Mi Perfil</a>
+                <p class="menu-label">Mi Agenda</p>
+                <a href="{% url 'calendario_cliente' %}" class="nav-link"><i class="fas fa-calendar-days"></i> Mi Calendario</a>
+                <a href="{% url 'listar_clases' %}" class="nav-link"><i class="fas fa-dumbbells"></i> Ver Clases</a>
+                {% if perfil %}
+                <a href="{% url 'editar_usuario' perfil.id %}" class="nav-link"><i class="fas fa-user-edit"></i> Mi Perfil</a>
+                {% endif %}
+            {% endif %}
+
+            {% if role_name == "Entrenador" %}
+                <p class="menu-label">Entrenamientos</p>
+                <a href="{% url 'listar_clases' %}" class="nav-link"><i class="fas fa-calendar-alt"></i> Ver Clases</a>
+                <a href="{% url 'crear_clase' %}" class="nav-link"><i class="fas fa-plus-circle"></i> Crear Clase</a>
+                {% if perfil %}
+                <a href="{% url 'editar_usuario' perfil.id %}" class="nav-link"><i class="fas fa-user-edit"></i> Mi Perfil</a>
+                {% endif %}
             {% endif %}
         </nav>
 
@@ -47,8 +60,15 @@
     </aside>
 
     <main class="main-content">
+        <!-- BREADCRUMBS -->
+        <nav aria-label="breadcrumb" class="breadcrumb-container">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item active" aria-current="page"><i class="fas fa-home"></i> Inicio</li>
+            </ol>
+        </nav>
+
         <header>
-            <h1>Hola, {{ user.username }}</h1>
+            <h1>Hola, {{ user.first_name|default:user.username }}</h1>
             <p style="color: var(--text-muted)">Esto es lo que está pasando hoy en el gimnasio.</p>
         </header>
 
@@ -56,18 +76,36 @@
         <div class="stats-grid">
             <div class="stat-card">
                 <h3>Usuarios Totales</h3>
-                <div class="value">1,240</div>
-                <small style="color: var(--color-success)">+5% este mes</small>
+                <div class="value">
+                    {% if usuarios_totales == 0 %}
+                        No hay usuarios
+                    {% else %}
+                        {{ usuarios_totales }}
+                    {% endif %}
+                </div>
+                <small style="color: var(--color-success)">Registrados en sistema</small>
             </div>
             <div class="stat-card">
                 <h3>Clases Hoy</h3>
-                <div class="value">12</div>
-                <small>8:00 AM - 9:00 PM</small>
+                <div class="value">
+                    {% if clases_hoy == 0 %}
+                        No hay clases
+                    {% else %}
+                        {{ clases_hoy }}
+                    {% endif %}
+                </div>
+                <small>Clases activas programadas</small>
             </div>
             <div class="stat-card">
-                <h3>Ingresos</h3>
-                <div class="value">$2.4M</div>
-                <small style="color: var(--accent-color)">COP</small>
+                <h3>Ingresos Estimados</h3>
+                <div class="value">
+                    {% if ingresos_totales == 0 %}
+                        No hay ingresos
+                    {% else %}
+                        ${{ ingresos_totales }} COP
+                    {% endif %}
+                </div>
+                <small style="color: var(--accent-color)">Basado en clientes activos</small>
             </div>
         </div>
 
@@ -75,7 +113,65 @@
             <h2>Acciones Rápidas</h2>
             <div class="actions" style="justify-content: flex-start;">
                 <a href="{% url 'crear_clase' %}" class="btn btn-clases"><i class="fas fa-plus"></i> Nueva Clase</a>
-                <a href="{% url 'reportes' %}" class="btn btn-reportes"><i class="fas fa-download"></i> Exportar PDF</a>
+                <a href="{% url 'reportes' %}" class="btn btn-reportes"><i class="fas fa-chart-line"></i> Ver Reportes</a>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if role_name == "Cliente" %}
+        <div class="stats-grid">
+            <div class="stat-card" style="border-left: 4px solid var(--accent-color);">
+                <h3>Clases Inscritas</h3>
+                <div class="value">{{ clases_inscritas_totales }}</div>
+                <small>Tu agenda deportiva activa</small>
+            </div>
+            <div class="stat-card" style="border-left: 4px solid var(--color-success);">
+                <h3>Próximas Sesiones</h3>
+                <div class="value">{{ proximas_clases_24h }}</div>
+                <small>Clases programadas</small>
+            </div>
+            <div class="stat-card" style="border-left: 4px solid var(--color-primary);">
+                <h3>Estado Cuenta</h3>
+                <div class="value" style="color: var(--color-success);">{{ perfil.estado|default:"Activo" }}</div>
+                <small>Membresía GymPower</small>
+            </div>
+        </div>
+
+        <div class="user-info">
+            <h2>Gestión de tu Agenda</h2>
+            <p>Agenda, cancela o reprograma tus clases de manera interactiva.</p>
+            <div class="actions" style="justify-content: flex-start;">
+                <a href="{% url 'calendario_cliente' %}" class="btn btn-clases"><i class="fas fa-calendar-days"></i> Ver Mi Calendario</a>
+                <a href="{% url 'listar_clases' %}" class="btn btn-editar"><i class="fas fa-search"></i> Buscar Clases</a>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if role_name == "Entrenador" %}
+        <div class="stats-grid">
+            <div class="stat-card" style="border-left: 4px solid var(--color-primary);">
+                <h3>Tus Clases</h3>
+                <div class="value">{{ clases_entrenadas_totales }}</div>
+                <small>Clases creadas por ti</small>
+            </div>
+            <div class="stat-card" style="border-left: 4px solid var(--accent-color);">
+                <h3>Alumnos Registrados</h3>
+                <div class="value">{{ alumnos_totales }}</div>
+                <small>Inscritos en tus sesiones</small>
+            </div>
+            <div class="stat-card" style="border-left: 4px solid var(--color-success);">
+                <h3>Estado</h3>
+                <div class="value" style="color: var(--color-success);">{{ perfil.estado|default:"Activo" }}</div>
+                <small>Entrenador Oficial</small>
+            </div>
+        </div>
+
+        <div class="user-info">
+            <h2>Panel de Logística de Clases</h2>
+            <p>Crea nuevos bloques de entrenamiento o gestiona tus horarios actuales.</p>
+            <div class="actions" style="justify-content: flex-start;">
+                <a href="{% url 'crear_clase' %}" class="btn btn-clases"><i class="fas fa-plus"></i> Nueva Clase</a>
+                <a href="{% url 'listar_clases' %}" class="btn btn-editar"><i class="fas fa-calendar-alt"></i> Ver Mis Horarios</a>
             </div>
         </div>
         {% endif %}

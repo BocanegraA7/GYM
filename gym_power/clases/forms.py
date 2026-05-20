@@ -20,6 +20,13 @@ class ClaseForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Obtener IDs de usuarios con rol Entrenador
-        entrenadores_ids = Users.objects.filter(role__nombre='Entrenador').values_list('id', flat=True)
-        self.fields['entrenador'].queryset = User.objects.filter(id__in=entrenadores_ids)
+        
+        try:
+            # CORRECCIÓN: Buscamos por el 'username' que es el texto único e idéntico en ambas tablas
+            usernames_entrenadores = Users.objects.filter(role__nombre='Entrenador').values_list('username', flat=True)
+            
+            # Filtramos la tabla de Django usando esos usernames
+            self.fields['entrenador'].queryset = User.objects.filter(username__in=usernames_entrenadores)
+        except Exception:
+            # Por si las moscas, si algo falla que muestre todos para no romper la pantalla
+            self.fields['entrenador'].queryset = User.objects.all()

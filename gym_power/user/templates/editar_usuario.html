@@ -3,33 +3,115 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Editar Perfil</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editar Perfil - GymPower</title>
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<body class="auth-page">
-<div class="home-container">
-    <h1>👤 Editar Perfil</h1>
-    <p>Actualiza tu información personal abajo.</p>
+<body class="dashboard-page">
+<div class="dashboard-wrapper">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fas fa-dumbbell"></i> GYM POWER</h2>
+            <small style="color: var(--text-dim)">Panel de {{ role_name }}</small>
+        </div>
 
-    <form method="POST">
-      {% csrf_token %}
-      
-      <div style="text-align: left; margin-bottom: 20px;">
-        {{ form.as_p }}
-      </div>
+        <nav class="nav-menu" style="flex-grow: 1;">
+            <a href="{% url 'home' %}" class="nav-link"><i class="fas fa-home"></i> Inicio</a>
+            
+            {% if role_name == "Administrador" %}
+                <p class="menu-label">Logística</p>
+                <a href="{% url 'listar_clases' %}" class="nav-link"><i class="fas fa-calendar-alt"></i> Gestión de Clases</a>
+                <a href="{% url 'reportes' %}" class="nav-link"><i class="fas fa-chart-pie"></i> Reportes Mensuales</a>
+                
+                <p class="menu-label">Usuarios</p>
+                <a href="{% url 'listar_usuarios' %}" class="nav-link active"><i class="fas fa-users-cog"></i> Control de Usuarios</a>
+                <a href="{% url 'notificaciones' %}" class="nav-link"><i class="fas fa-bell"></i> Comunicados</a>
+            {% endif %}
 
-      <div style="display: flex; justify-content: center; gap: 15px; margin-top: 25px;">
-        
-        <button type="submit" class="btn btn-editar" style="margin: 0; min-width: 180px;">
-          💾 Guardar Cambios
-        </button>
+            {% if role_name == "Cliente" %}
+                <p class="menu-label">Mi Agenda</p>
+                <a href="{% url 'calendario_cliente' %}" class="nav-link"><i class="fas fa-calendar-days"></i> Mi Calendario</a>
+                <a href="{% url 'listar_clases' %}" class="nav-link"><i class="fas fa-dumbbells"></i> Ver Clases</a>
+                {% if perfil %}
+                <a href="{% url 'editar_usuario' perfil.id %}" class="nav-link active"><i class="fas fa-user-edit"></i> Mi Perfil</a>
+                {% endif %}
+            {% endif %}
 
-        <a href="{% url 'home' %}" class="btn btn-volver" style="margin: 0; min-width: 180px; display: inline-flex; align-items: center; justify-content: center;">
-          🏠 Volver al Inicio
-        </a>
+            {% if role_name == "Entrenador" %}
+                <p class="menu-label">Entrenamientos</p>
+                <a href="{% url 'listar_clases' %}" class="nav-link"><i class="fas fa-calendar-alt"></i> Ver Clases</a>
+                <a href="{% url 'crear_clase' %}" class="nav-link"><i class="fas fa-plus-circle"></i> Crear Clase</a>
+                {% if perfil %}
+                <a href="{% url 'editar_usuario' perfil.id %}" class="nav-link active"><i class="fas fa-user-edit"></i> Mi Perfil</a>
+                {% endif %}
+            {% endif %}
+        </nav>
 
-      </div>
-    </form>
+        <div class="sidebar-footer">
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-logout" style="width: 100%; display: flex; align-items: center; gap: 10px; justify-content: center;">
+                    <i class="fas fa-sign-out-alt"></i> 
+                    <span>Cerrar Sesión</span>
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <!-- BREADCRUMBS -->
+        <nav aria-label="breadcrumb" class="breadcrumb-container">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}"><i class="fas fa-home"></i> Inicio</a></li>
+                {% if role_name == "Administrador" %}
+                    <li class="breadcrumb-item"><a href="{% url 'listar_usuarios' %}">Usuarios</a></li>
+                {% endif %}
+                <li class="breadcrumb-item active" aria-current="page">Editar Perfil</li>
+            </ol>
+        </nav>
+
+        <div class="form-card" style="max-width: 500px; margin: 20px auto;">
+            <header class="form-header">
+                <h1>👤 Editar Perfil</h1>
+                <p>Actualiza la información personal del perfil registrado.</p>
+            </header>
+
+            {% if form.errors %}
+                <div class="alert-error-container" style="background: rgba(214, 48, 49, 0.1); border: 1px solid var(--color-danger); padding: 15px; border-radius: 10px; color: #ff9f94; margin-bottom: 20px;">
+                    <strong>❌ Hay errores en el formulario:</strong>
+                    <ul style="list-style-position: inside; margin-top: 10px;">
+                        {% for field, errors in form.errors.items %}
+                            <li>{{ field|capfirst }}: {{ errors|join:", " }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+            <form method="POST" class="gym-form">
+                {% csrf_token %}
+                
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    {% for field in form %}
+                        <div class="form-group">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <span class="field-errors" style="color: #ff9f94; font-size: 0.8rem; margin-top: 5px;">{{ field.errors|striptags }}</span>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="form-actions" style="margin-top: 30px;">
+                    <button type="submit" class="btn-save"><i class="fas fa-save"></i> Guardar Cambios</button>
+                    <a href="{% url 'home' %}" class="btn-cancel">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </main>
 </div>
 </body>
 </html>

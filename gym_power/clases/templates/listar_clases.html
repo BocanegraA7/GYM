@@ -6,18 +6,149 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Clases del Gimnasio - GymPower</title>
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    .badge-inscrito {
+      background: rgba(0, 224, 255, 0.15);
+      color: var(--accent-color);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      border: 1px solid rgba(0, 224, 255, 0.3);
+    }
+    .badge-pasada {
+      background: rgba(255, 255, 255, 0.05);
+      color: #777;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+    }
+    .clase-pasada-card {
+      opacity: 0.65;
+      border-color: #2b2b3a !important;
+    }
+    .card-actions-client {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+    }
+    .btn-cancel-enroll {
+      background: linear-gradient(135deg, #d63031, #a62021);
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+      width: 100%;
+    }
+    .btn-cancel-enroll:hover {
+      filter: brightness(1.2);
+      transform: translateY(-2px);
+    }
+    .btn-repro-enroll {
+      background: rgba(0, 224, 255, 0.1);
+      color: var(--accent-color);
+      border: 1px solid var(--accent-color);
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+      width: 100%;
+    }
+    .btn-repro-enroll:hover {
+      background: var(--accent-color);
+      color: #000;
+      transform: translateY(-2px);
+    }
+    .repro-select {
+      width: 100%;
+      padding: 12px;
+      background: #1e1e2f;
+      color: white;
+      border: 1px solid #3e3e56;
+      border-radius: 8px;
+      margin-top: 15px;
+    }
+  </style>
 </head>
 
 <body class="dashboard-page">
   <div class="dashboard-wrapper">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fas fa-dumbbell"></i> GYM POWER</h2>
+            <small style="color: var(--text-dim)">Panel de {{ role_name }}</small>
+        </div>
+
+        <nav class="nav-menu" style="flex-grow: 1;">
+            <a href="{% url 'home' %}" class="nav-link"><i class="fas fa-home"></i> Inicio</a>
+            
+            {% if role_name == "Administrador" %}
+                <p class="menu-label">Logística</p>
+                <a href="{% url 'listar_clases' %}" class="nav-link active"><i class="fas fa-calendar-alt"></i> Gestión de Clases</a>
+                <a href="{% url 'reportes' %}" class="nav-link"><i class="fas fa-chart-pie"></i> Reportes Mensuales</a>
+                
+                <p class="menu-label">Usuarios</p>
+                <a href="{% url 'listar_usuarios' %}" class="nav-link"><i class="fas fa-users-cog"></i> Control de Usuarios</a>
+                <a href="{% url 'notificaciones' %}" class="nav-link"><i class="fas fa-bell"></i> Comunicados</a>
+            {% endif %}
+
+            {% if role_name == "Cliente" %}
+                <p class="menu-label">Mi Agenda</p>
+                <a href="{% url 'calendario_cliente' %}" class="nav-link"><i class="fas fa-calendar-days"></i> Mi Calendario</a>
+                <a href="{% url 'listar_clases' %}" class="nav-link active"><i class="fas fa-dumbbells"></i> Ver Clases</a>
+                {% if perfil %}
+                <a href="{% url 'editar_usuario' perfil.id %}" class="nav-link"><i class="fas fa-user-edit"></i> Mi Perfil</a>
+                {% endif %}
+            {% endif %}
+
+            {% if role_name == "Entrenador" %}
+                <p class="menu-label">Entrenamientos</p>
+                <a href="{% url 'listar_clases' %}" class="nav-link active"><i class="fas fa-calendar-alt"></i> Ver Clases</a>
+                <a href="{% url 'crear_clase' %}" class="nav-link"><i class="fas fa-plus-circle"></i> Crear Clase</a>
+                {% if perfil %}
+                <a href="{% url 'editar_usuario' perfil.id %}" class="nav-link"><i class="fas fa-user-edit"></i> Mi Perfil</a>
+                {% endif %}
+            {% endif %}
+        </nav>
+
+        <div class="sidebar-footer">
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-logout" style="width: 100%; display: flex; align-items: center; gap: 10px; justify-content: center;">
+                    <i class="fas fa-sign-out-alt"></i> 
+                    <span>Cerrar Sesión</span>
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL -->
     <main class="main-content">
+      <!-- BREADCRUMBS -->
+      <nav aria-label="breadcrumb" class="breadcrumb-container">
+          <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{% url 'home' %}"><i class="fas fa-home"></i> Inicio</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Clases</li>
+          </ol>
+      </nav>
+
       <header class="section-header">
         <h1>Clases Disponibles</h1>
         
         <form method="get" action="" class="search-container">
-          <input type="text" name="q" placeholder="Buscar clase, entrenador..." value="{{ request.GET.q }}">
-          <button type="submit" class="btn-search">🔍</button>
+          <input type="text" name="q" placeholder="Buscar clase, entrenador, lugar..." value="{{ request.GET.q }}">
+          <button type="submit" class="btn-search"><i class="fas fa-search"></i></button>
           <a href="{% url 'listar_clases' %}" class="btn-clean">Limpiar</a>
         </form>
 
@@ -28,16 +159,24 @@
 
       <div class="cards-grid">
         {% for clase in clases %}
-          <div class="clase-card">
+          <div class="clase-card {% if clase.es_pasada %}clase-pasada-card{% endif %}">
             <div class="card-header">
               <span class="badge-category">{{ clase.nombre }}</span>
-              <div class="cupos-indicator {% if clase.cupos == 0 %}full{% endif %}">
-                {{ clase.cupos }} cupos
-              </div>
+              
+              {% if clase.es_pasada %}
+                <span class="badge-pasada">Finalizada</span>
+              {% elif clase.inscrito %}
+                <span class="badge-inscrito">✅ Inscrito</span>
+              {% else %}
+                <div class="cupos-indicator {% if clase.cupos == 0 %}full{% endif %}">
+                  {{ clase.cupos }} cupos
+                </div>
+              {% endif %}
             </div>
 
             <div class="card-body">
               <p class="instructor-name"><strong>Entrenador:</strong> {{ clase.entrenador.username }}</p>
+              <p class="instructor-name" style="margin-top:-5px;"><strong>📍 Lugar:</strong> {{ clase.lugar }}</p>
               <div class="time-info">
                 <span>📅 {{ clase.fecha }}</span>
                 <span>🕒 {{ clase.hora }}</span>
@@ -47,31 +186,47 @@
             <div class="card-actions">
               <a href="{% url 'ver_clase' clase.id %}" class="action-link info">Ver Detalles</a>
 
-              <div class="action-buttons">
-                {% if es_admin %}
-                  <a href="{% url 'editar_clase' clase.id %}" class="btn-icon edit">✏️</a>
-                  
-                  <button type="button" class="btn-icon delete" 
-                          onclick="confirmarEliminar('{{ clase.id }}', '{{ clase.nombre|escapejs }}')">
-                    🗑️
-                  </button>
-
+              <div class="action-buttons" style="width:100%;">
+                {% if clase.es_pasada %}
+                  <button class="btn-disabled" style="width:100%; cursor:not-allowed; background:#333; color:#777;" disabled>Sesión Cerrada</button>
+                
+                {% elif es_admin %}
+                  <div style="display:flex; gap:10px; width:100%; justify-content:space-between;">
+                    <a href="{% url 'editar_clase' clase.id %}" class="btn-icon edit" style="flex:1; text-align:center;">✏️ Editar</a>
+                    <button type="button" class="btn-icon delete" style="flex:1;"
+                            onclick="confirmarEliminar('{{ clase.id }}', '{{ clase.nombre|escapejs }}')">
+                      🗑️ Borrar
+                    </button>
+                  </div>
                   <form id="form-eliminar-{{ clase.id }}" action="{% url 'eliminar_clase' clase.id %}" method="post" style="display:none;">
                     {% csrf_token %}
                   </form>
 
                 {% elif es_entrenador and clase.entrenador == user %}
-                  <a href="{% url 'editar_clase' clase.id %}" class="btn-icon edit">✏️ Editar</a>
+                  <div style="display:flex; gap:10px; width:100%;">
+                    <a href="{% url 'editar_clase' clase.id %}" class="btn-icon edit" style="flex:1; text-align:center;">✏️ Editar</a>
+                  </div>
 
                 {% elif es_cliente %}
-                  {% if clase.cupos > 0 %}
-                    <form method="post" action="{% url 'inscribirse_clase' clase.id %}">
-                      {% csrf_token %}
-                      <button type="submit" class="btn-enroll">📝 Inscribirme</button>
-                    </form>
-                  {% else %}
-                    <button class="btn-disabled" disabled>Lleno</button>
-                  {% endif %}
+                  <div class="card-actions-client">
+                    {% if clase.inscrito %}
+                      <button type="button" class="btn-cancel-enroll" onclick="confirmarCancelar('{{ clase.id }}', '{{ clase.nombre|escapejs }}')">
+                        🗑️ Cancelar Inscripción
+                      </button>
+                      <button type="button" class="btn-repro-enroll" onclick="mostrarReprogramarModal('{{ clase.id }}', '{{ clase.nombre|escapejs }}')">
+                        🔄 Reprogramar clase
+                      </button>
+                    {% else %}
+                      {% if clase.cupos > 0 %}
+                        <form method="post" action="{% url 'inscribirse_clase' clase.id %}" style="width:100%;">
+                          {% csrf_token %}
+                          <button type="submit" class="btn-enroll" style="width:100%;">📝 Inscribirme</button>
+                        </form>
+                      {% else %}
+                        <button class="btn-disabled" style="width:100%; cursor:not-allowed;" disabled>Lleno</button>
+                      {% endif %}
+                    {% endif %}
+                  </div>
                 {% endif %}
               </div>
             </div>
@@ -81,25 +236,42 @@
         {% endfor %}
       </div>
 
-      <footer class="page-footer">
-        <a href="{% url 'home' %}" class="btn-back"> Volver al Inicio</a>
-      </footer>
-
     </main>
   </div>
 
+  <!-- Forms for operations -->
+  <form id="cancel-enroll-form" method="post" action="" style="display:none;">
+    {% csrf_token %}
+  </form>
+  <form id="repro-enroll-form" method="post" action="" style="display:none;">
+    {% csrf_token %}
+    <input type="hidden" name="nueva_clase_id" id="nueva-clase-id-input">
+  </form>
+
  <script>
-    // Esperar a que toda la página cargue para que Swal esté disponible
+    // Lista de clases disponibles para reprogramar desde JS
+    const clasesDisponiblesRepro = [
+      {% for clase in clases %}
+        {% if not clase.es_pasada and not clase.inscrito and clase.cupos > 0 %}
+          {
+            id: "{{ clase.id }}",
+            nombre: "{{ clase.nombre|escapejs }}",
+            fecha: "{{ clase.fecha }}",
+            hora: "{{ clase.hora }}",
+            lugar: "{{ clase.lugar|escapejs }}"
+          },
+        {% endif %}
+      {% endfor %}
+    ];
+
     document.addEventListener('DOMContentLoaded', function() {
-        
-        // 1. Notificación de éxito (Atrapa el mensaje del View)
         {% if messages %}
             {% for message in messages %}
                 Swal.fire({
-                    title: "¡Excelente!",
+                    title: "¡Hecho!",
                     text: "{{ message|escapejs }}", 
-                    icon: "success",
-                    timer: 2500,
+                    icon: "{% if 'error' in message.tags %}error{% elif 'warning' in message.tags %}warning{% else %}success{% endif %}",
+                    timer: 3000,
                     showConfirmButton: false,
                     background: '#1f2937',
                     color: '#ffffff'
@@ -108,16 +280,7 @@
         {% endif %}
     });
 
-    // 2. Función para confirmar antes de borrar (esta va afuera)
     function confirmarEliminar(id, nombre) {
-        if (typeof Swal === 'undefined') {
-            // Si por alguna razón SweetAlert no cargó, usamos el plan B
-            if (confirm("¿Estás seguro de eliminar esta clase?")) {
-                document.getElementById('form-eliminar-' + id).submit();
-            }
-            return;
-        }
-
         Swal.fire({
             title: '¿Estás seguro?',
             text: `Vas a eliminar la clase "${nombre}". No podrás deshacer esto.`,
@@ -131,12 +294,84 @@
             color: '#ffffff'
         }).then((result) => {
             if (result.isConfirmed) {
-                const form = document.getElementById('form-eliminar-' + id);
-                if (form) {
-                    form.submit();
-                } else {
-                    console.error("No se encontró el formulario: form-eliminar-" + id);
+                document.getElementById('form-eliminar-' + id).submit();
+            }
+        });
+    }
+
+    function confirmarCancelar(claseId, nombre) {
+        Swal.fire({
+            title: '¿Cancelar Inscripción?',
+            text: `Vas a darte de baja de la clase "${nombre}". Tu cupo será liberado.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, cancelar inscripción',
+            cancelButtonText: 'Mantener cupo',
+            background: '#1f2937',
+            color: '#ffffff'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const form = document.getElementById('cancel-enroll-form');
+                form.action = `/clases/cancelar/${claseId}/`;
+                form.submit();
+            }
+        });
+    }
+
+    function mostrarReprogramarModal(claseId, nombreClase) {
+        // Filtrar clases disponibles excluyendo la actual
+        const opciones = clasesDisponiblesRepro.filter(c => c.id != claseId);
+
+        if (opciones.length === 0) {
+            Swal.fire({
+                title: 'No hay clases de destino',
+                text: 'Lo sentimos, no hay otras clases futuras con cupos disponibles para reprogramar en este momento.',
+                icon: 'info',
+                background: '#1f2937',
+                color: '#ffffff'
+            });
+            return;
+        }
+
+        let selectHtml = `<select id="nueva-clase-select-list" class="repro-select" style="background:#1e1e2f; color:#fff; border:1px solid #3e3e56; padding:10px; border-radius:8px; width:100%; margin-top:15px;">
+            <option value="">-- Elige un entrenamiento libre --</option>
+        `;
+        opciones.forEach(o => {
+            selectHtml += `<option value="${o.id}">${o.nombre} - ${o.fecha} (${o.hora}) | Lugar: ${o.lugar}</option>`;
+        });
+        selectHtml += `</select>`;
+
+        Swal.fire({
+            title: 'Reprogramar Entrenamiento',
+            html: `
+                <div style="text-align:left;">
+                    <p>Vas a reprogramar tu asistencia a <b>${nombreClase}</b>.</p>
+                    <p style="color:#aaa;">Selecciona una nueva sesión deportiva:</p>
+                    ${selectHtml}
+                </div>
+            `,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#00d2ff',
+            confirmButtonText: 'Confirmar Reprogramación',
+            cancelButtonText: 'Cancelar',
+            background: '#1f2937',
+            color: '#ffffff',
+            preConfirm: () => {
+                const val = document.getElementById('nueva-clase-select-list').value;
+                if (!val) {
+                    Swal.showValidationMessage('Debes seleccionar una nueva clase.');
                 }
+                return val;
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const form = document.getElementById('repro-enroll-form');
+                form.action = `/clases/reprogramar/${claseId}/`;
+                document.getElementById('nueva-clase-id-input').value = result.value;
+                form.submit();
             }
         });
     }

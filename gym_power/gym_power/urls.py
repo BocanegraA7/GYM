@@ -60,6 +60,9 @@ urlpatterns = [
     path('clases/editar/<int:clase_id>/', class_views.editar_clase, name='editar_clase'),
     path('clases/eliminar/<int:clase_id>/', class_views.eliminar_clase, name='eliminar_clase'),
     path('clases/inscribirse/<int:clase_id>/', class_views.inscribirse_clase, name='inscribirse_clase'),
+    path('clases/cancelar/<int:clase_id>/', class_views.cancelar_inscripcion, name='cancelar_inscripcion'),
+    path('clases/reprogramar/<int:clase_id>/', class_views.reprogramar_inscripcion, name='reprogramar_inscripcion'),
+    path('clases/calendario/', class_views.calendario_cliente, name='calendario_cliente'),
     path('clases/ver/<int:clase_id>/', class_views.ver_clase, name='ver_clase'),
 
     

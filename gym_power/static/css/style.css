@@ -780,3 +780,51 @@ tr:hover {
     margin-top: 5px;
     display: block;
 }
+
+/* --- BREADCRUMBS GLASSMORPHISM --- */
+.breadcrumb-container {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 8px 16px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    display: inline-block;
+}
+.breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    gap: 8px;
+    align-items: center;
+    font-size: 0.85rem;
+}
+.breadcrumb-item {
+    display: flex;
+    align-items: center;
+    color: var(--text-dim);
+}
+.breadcrumb-item a {
+    color: var(--accent-color);
+    text-decoration: none;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.breadcrumb-item a:hover {
+    color: #ffffff;
+    text-shadow: 0 0 8px var(--accent-color);
+}
+.breadcrumb-item + .breadcrumb-item::before {
+    content: "➔";
+    margin-right: 8px;
+    color: var(--text-dim);
+    font-size: 0.75rem;
+}
+.breadcrumb-item.active {
+    color: var(--text-main);
+    font-weight: bold;
+}

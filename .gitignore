@@ -1,13 +1,17 @@
 # Entornos virtuales
 devenv/
 
-# Carpeta de base de datos (La que causa el error de permisos)
-gym_power/gym_project_postgres_data-cloned/
+# Carpeta de base de datos local (Evita bloqueos de permisos)
 gym_project_postgres_data-cloned/
 
-# Python
+# Archivos comprimidos de copias de seguridad de la base de datos
+*.tar.gz
+*.tar
+*.sql
+
+# Python (Caché y compilados)
 __pycache__/
 *.pyc
 
-# Otros
+# Variables de entorno y credenciales
 .env

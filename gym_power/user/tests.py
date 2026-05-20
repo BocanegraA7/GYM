@@ -3,6 +3,8 @@ from django.urls import reverse
 from django.contrib.auth.models import User as DjangoUser
 from django.core import mail
 from user.models import Users, Roles, Notificacion
+from django.utils.timezone import make_aware
+from datetime import datetime
 
 
 class GymPowerTests(TestCase):
@@ -58,7 +60,7 @@ class GymPowerTests(TestCase):
             "last_name": "Usuario",
             "email": "new@example.com",
             "chat_id": "654321",
-            "roles": self.role_cliente.id,
+            "role": self.role_cliente.id,
             "password1": "abc123",
             "password2": "abc123",
         })
@@ -79,7 +81,7 @@ class GymPowerTests(TestCase):
         print("➡️  Test: Acceso al Home con sesión iniciada")
         response = self.client.get(reverse("home"))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Home")
+        self.assertContains(response, "Inicio")
 
     def test_acceso_home_sin_login(self):
         print("➡️  Test: Acceso al Home sin autenticación (redirección)")
@@ -138,7 +140,7 @@ class GymPowerTests(TestCase):
             destinatario=self.user,
             titulo="Noti Original",
             descripcion="Texto original",
-            fecha_envio="2025-10-24T10:00"
+            fecha_envio=make_aware(datetime(2025, 10, 24, 10, 0))
         )
         url = reverse("notificacion_edit", args=[notif.id])
         response = self.client.post(url, {
@@ -157,7 +159,7 @@ class GymPowerTests(TestCase):
             destinatario=self.user,
             titulo="Eliminarme",
             descripcion="Borrar este mensaje",
-            fecha_envio="2025-10-24T10:00"
+            fecha_envio=make_aware(datetime(2025, 10, 24, 10, 0))
         )
         response = self.client.get(reverse("notificacion_delete", args=[notif.id]))
         self.assertEqual(response.status_code, 302)
@@ -169,7 +171,7 @@ class GymPowerTests(TestCase):
             destinatario=self.user,
             titulo="Lista Test",
             descripcion="Debe aparecer en tabla",
-            fecha_envio="2025-10-25T10:00"
+            fecha_envio=make_aware(datetime(2025, 10, 25, 10, 0))
         )
         response = self.client.get(reverse("notificaciones"))
         self.assertEqual(response.status_code, 200)
@@ -181,7 +183,7 @@ class GymPowerTests(TestCase):
             destinatario=self.user,
             titulo="EnviarTest",
             descripcion="Prueba de envío",
-            fecha_envio="2025-10-24T10:00"
+            fecha_envio=make_aware(datetime(2025, 10, 24, 10, 0))
         )
         response = self.client.get(reverse("notificacion_enviar", args=[notif.id]))
         notif.refresh_from_db()

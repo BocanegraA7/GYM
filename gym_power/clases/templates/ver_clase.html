@@ -6,14 +6,150 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ver Clase - GymPower</title>
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    .badge-inscrito {
+      background: rgba(0, 224, 255, 0.15);
+      color: var(--accent-color);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      border: 1px solid rgba(0, 224, 255, 0.3);
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+    .badge-pasada {
+      background: rgba(255, 255, 255, 0.05);
+      color: #777;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+    .btn-cancel-large {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #d63031, #a62021);
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .btn-cancel-large:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(214, 48, 49, 0.4);
+    }
+    .btn-repro-large {
+      width: 100%;
+      padding: 15px;
+      background: rgba(0, 224, 255, 0.1);
+      border: 1px solid var(--accent-color);
+      border-radius: 12px;
+      color: var(--accent-color);
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+      margin-top: 10px;
+    }
+    .btn-repro-large:hover {
+      background: var(--accent-color);
+      color: #000;
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0, 224, 255, 0.3);
+    }
+    .repro-select {
+      width: 100%;
+      padding: 12px;
+      background: #1e1e2f;
+      color: white;
+      border: 1px solid #3e3e56;
+      border-radius: 8px;
+      margin-top: 15px;
+    }
+  </style>
 </head>
 <body class="dashboard-page">
   <div class="dashboard-wrapper">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fas fa-dumbbell"></i> GYM POWER</h2>
+            <small style="color: var(--text-dim)">Panel de {{ role_name }}</small>
+        </div>
+
+        <nav class="nav-menu" style="flex-grow: 1;">
+            <a href="{% url 'home' %}" class="nav-link"><i class="fas fa-home"></i> Inicio</a>
+            
+            {% if role_name == "Administrador" %}
+                <p class="menu-label">Logística</p>
+                <a href="{% url 'listar_clases' %}" class="nav-link active"><i class="fas fa-calendar-alt"></i> Gestión de Clases</a>
+                <a href="{% url 'reportes' %}" class="nav-link"><i class="fas fa-chart-pie"></i> Reportes Mensuales</a>
+                
+                <p class="menu-label">Usuarios</p>
+                <a href="{% url 'listar_usuarios' %}" class="nav-link"><i class="fas fa-users-cog"></i> Control de Usuarios</a>
+                <a href="{% url 'notificaciones' %}" class="nav-link"><i class="fas fa-bell"></i> Comunicados</a>
+            {% endif %}
+
+            {% if role_name == "Cliente" %}
+                <p class="menu-label">Mi Agenda</p>
+                <a href="{% url 'calendario_cliente' %}" class="nav-link"><i class="fas fa-calendar-days"></i> Mi Calendario</a>
+                <a href="{% url 'listar_clases' %}" class="nav-link active"><i class="fas fa-dumbbells"></i> Ver Clases</a>
+                {% if perfil %}
+                <a href="{% url 'editar_usuario' perfil.id %}" class="nav-link"><i class="fas fa-user-edit"></i> Mi Perfil</a>
+                {% endif %}
+            {% endif %}
+
+            {% if role_name == "Entrenador" %}
+                <p class="menu-label">Entrenamientos</p>
+                <a href="{% url 'listar_clases' %}" class="nav-link active"><i class="fas fa-calendar-alt"></i> Ver Clases</a>
+                <a href="{% url 'crear_clase' %}" class="nav-link"><i class="fas fa-plus-circle"></i> Crear Clase</a>
+                {% if perfil %}
+                <a href="{% url 'editar_usuario' perfil.id %}" class="nav-link"><i class="fas fa-user-edit"></i> Mi Perfil</a>
+                {% endif %}
+            {% endif %}
+        </nav>
+
+        <div class="sidebar-footer">
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-logout" style="width: 100%; display: flex; align-items: center; gap: 10px; justify-content: center;">
+                    <i class="fas fa-sign-out-alt"></i> 
+                    <span>Cerrar Sesión</span>
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL -->
     <main class="main-content">
+      <!-- BREADCRUMBS -->
+      <nav aria-label="breadcrumb" class="breadcrumb-container">
+          <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{% url 'home' %}"><i class="fas fa-home"></i> Inicio</a></li>
+              <li class="breadcrumb-item"><a href="{% url 'listar_clases' %}">Clases</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Detalle</li>
+          </ol>
+      </nav>
+
       <div class="detail-card">
         <header class="detail-header">
-          <span class="detail-label">Detalles del Entrenamiento</span>
+          {% if clase.es_pasada %}
+            <span class="badge-pasada">Sesión Finalizada</span>
+          {% elif inscrito %}
+            <span class="badge-inscrito">✅ Estás Inscrito</span>
+          {% else %}
+            <span class="detail-label">Entrenamiento Disponible</span>
+          {% endif %}
           <h1>{{ clase.nombre }}</h1>
         </header>
 
@@ -43,6 +179,22 @@
           </div>
 
           <div class="info-item">
+            <span class="icon">📍</span>
+            <div class="info-content">
+              <label>Lugar</label>
+              <p>{{ clase.lugar }}</p>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <span class="icon">⏱️</span>
+            <div class="info-content">
+              <label>Duración</label>
+              <p>{{ clase.duracion_min }} min</p>
+            </div>
+          </div>
+
+          <div class="info-item">
             <span class="icon">🎟️</span>
             <div class="info-content">
               <label>Cupos Disponibles</label>
@@ -51,15 +203,25 @@
           </div>
         </div>
 
+        <div style="margin-bottom: 25px;">
+            <h3>Descripción del Entrenamiento:</h3>
+            <p style="background: rgba(255,255,255,0.02); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                {{ clase.descripcion|default:"Sin descripción adicional para esta clase." }}
+            </p>
+        </div>
+
         <div class="detail-actions">
-            {% if role_name == "Administrador" %}
+            {% if clase.es_pasada %}
+                <button class="btn-disabled-large" style="cursor:not-allowed; background:#333; color:#777;" disabled>❌ Sesión Cerrada (Fecha Pasada)</button>
+            
+            {% elif role_name == "Administrador" %}
                 {# --- SECCIÓN ADMINISTRADOR --- #}
                 <a href="{% url 'editar_clase' clase.id %}" class="btn-action edit">✏️ Editar Clase</a>
 
                 <button type="button" 
                         onclick="confirmarEliminar('{{ clase.id }}', '{{ clase.nombre|escapejs }}')" 
-                        class="btn btn-danger">
-                    Eliminar
+                        class="btn btn-danger btn-action delete">
+                    🗑️ Eliminar Clase
                 </button>
 
                 <form id="form-eliminar-{{ clase.id }}" 
@@ -71,46 +233,164 @@
 
             {% elif role_name == "Entrenador" and clase.entrenador == user %}
                 {# --- SECCIÓN ENTRENADOR --- #}
-                <a href="{% url 'editar_clase' clase.id %}" class="btn-action edit">✏️ Editar mis Horarios</a>
+                <a href="{% url 'editar_clase' clase.id %}" class="btn-action edit">✏️ Editar Entrenamiento</a>
 
             {% elif role_name == "Cliente" %}
                 {# --- SECCIÓN CLIENTE --- #}
-                {% if clase.cupos > 0 %}
-                    <form method="post" action="{% url 'inscribirse_clase' clase.id %}" class="full-width-form">
-                        {% csrf_token %}
-                        <button type="submit" class="btn-enroll-large">📝 Inscribirme Ahora</button>
-                    </form>
+                {% if inscrito %}
+                    <button class="btn-cancel-large" onclick="confirmarCancelar('{{ clase.id }}', '{{ clase.nombre|escapejs }}')">🗑️ Cancelar Inscripción</button>
+                    <button class="btn-repro-large" onclick="mostrarReprogramarModal('{{ clase.id }}', '{{ clase.nombre|escapejs }}')">🔄 Reprogramar Clase</button>
                 {% else %}
-                    <button class="btn-disabled-large" disabled>❌ Clase sin Cupos</button>
+                    {% if clase.cupos > 0 %}
+                        <form method="post" action="{% url 'inscribirse_clase' clase.id %}" class="full-width-form">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-enroll-large">📝 Inscribirme Ahora</button>
+                        </form>
+                    {% else %}
+                        <button class="btn-disabled-large" disabled>❌ Clase sin Cupos</button>
+                    {% endif %}
                 {% endif %}
             {% endif %}
         </div>
-        <script>
-function confirmarEliminar(id, nombre) {
-    Swal.fire({
-        title: '¿Estás seguro?',
-        text: `Vas a eliminar la clase "${nombre}". Esta acción no se puede deshacer.`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            document.getElementById('form-eliminar-' + id).submit();
-        }
-    })
-}
-</script>
-
 
         <footer class="detail-footer">
-          <a href="{% url 'listar_clases' %}" class="link-back">🔙 Volver a la lista</a>
-          <a href="{% url 'home' %}" class="link-back">🏠 Inicio</a>
+          <a href="{% url 'listar_clases' %}" class="link-back"><i class="fas fa-arrow-left"></i> Volver a la lista</a>
+          <a href="{% url 'home' %}" class="link-back"><i class="fas fa-home"></i> Inicio</a>
         </footer>
       </div>
     </main>
   </div>
+
+  <!-- Forms for operations -->
+  <form id="cancel-enroll-form" method="post" action="" style="display:none;">
+    {% csrf_token %}
+  </form>
+  <form id="repro-enroll-form" method="post" action="" style="display:none;">
+    {% csrf_token %}
+    <input type="hidden" name="nueva_clase_id" id="nueva-clase-id-input">
+  </form>
+
+<script>
+    const clasesDisponiblesRepro = [
+      {% for c in clases_disponibles_repro %}
+        {
+          id: "{{ c.id }}",
+          nombre: "{{ c.nombre|escapejs }}",
+          fecha: "{{ c.fecha }}",
+          hora: "{{ c.hora }}",
+          lugar: "{{ c.lugar|escapejs }}"
+        },
+      {% endfor %}
+    ];
+
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if messages %}
+            {% for message in messages %}
+                Swal.fire({
+                    title: "Notificación",
+                    text: "{{ message|escapejs }}",
+                    icon: "{% if 'error' in message.tags %}error{% elif 'warning' in message.tags %}warning{% else %}success{% endif %}",
+                    timer: 2500,
+                    showConfirmButton: false,
+                    background: '#2c2c3e',
+                    color: '#ffffff'
+                });
+            {% endfor %}
+        {% endif %}
+    });
+
+    function confirmarEliminar(id, nombre) {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: `Vas a eliminar la clase "${nombre}". Esta acción no se puede deshacer.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar',
+            background: '#2c2c3e',
+            color: '#ffffff'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('form-eliminar-' + id).submit();
+            }
+        });
+    }
+
+    function confirmarCancelar(claseId, nombre) {
+        Swal.fire({
+            title: '¿Cancelar Inscripción?',
+            text: `Vas a darte de baja de "${nombre}". Tu cupo será liberado.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, dar de baja',
+            cancelButtonText: 'Mantener clase',
+            background: '#2c2c3e',
+            color: '#ffffff'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const form = document.getElementById('cancel-enroll-form');
+                form.action = `/clases/cancelar/${claseId}/`;
+                form.submit();
+            }
+        });
+    }
+
+    function mostrarReprogramarModal(claseId, nombreClase) {
+        if (clasesDisponiblesRepro.length === 0) {
+            Swal.fire({
+                title: 'No hay clases de destino',
+                text: 'Lo sentimos, no hay otras clases futuras con cupos disponibles para reprogramar en este momento.',
+                icon: 'info',
+                background: '#2c2c3e',
+                color: '#ffffff'
+            });
+            return;
+        }
+
+        let selectHtml = `<select id="nueva-clase-select-detail" class="repro-select">
+            <option value="">-- Elige un entrenamiento disponible --</option>
+        `;
+        clasesDisponiblesRepro.forEach(o => {
+            selectHtml += `<option value="${o.id}">${o.nombre} - ${o.fecha} (${o.hora}) | Lugar: ${o.lugar}</option>`;
+        });
+        selectHtml += `</select>`;
+
+        Swal.fire({
+            title: 'Reprogramar Entrenamiento',
+            html: `
+                <div style="text-align:left;">
+                    <p>Vas a reprogramar tu asistencia a <b>${nombreClase}</b>.</p>
+                    <p style="color:#aaa;">Selecciona un nuevo entrenamiento libre:</p>
+                    ${selectHtml}
+                </div>
+            `,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#00d2ff',
+            confirmButtonText: 'Confirmar Cambio',
+            cancelButtonText: 'Regresar',
+            background: '#2c2c3e',
+            color: '#ffffff',
+            preConfirm: () => {
+                const val = document.getElementById('nueva-clase-select-detail').value;
+                if (!val) {
+                    Swal.showValidationMessage('Debes seleccionar una clase.');
+                }
+                return val;
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const form = document.getElementById('repro-enroll-form');
+                form.action = `/clases/reprogramar/${claseId}/`;
+                document.getElementById('nueva-clase-id-input').value = result.value;
+                form.submit();
+            }
+        });
+    }
+</script>
 </body>
 </html>

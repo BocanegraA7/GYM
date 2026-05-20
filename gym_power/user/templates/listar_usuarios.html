@@ -5,116 +5,221 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista de Usuarios - GymPower</title>
-    <link rel="stylesheet" href="{% static 'css/usuarios.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .users-card {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: 10px;
+        }
+        .action-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .badge-role {
+            background: rgba(108, 92, 231, 0.15);
+            color: #a29bfe;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            border: 1px solid rgba(108, 92, 231, 0.3);
+        }
+        .badge-estado {
+            background: rgba(0, 184, 148, 0.15);
+            color: var(--color-success);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            border: 1px solid rgba(0, 184, 148, 0.3);
+        }
+        .badge-estado.inactivo {
+            background: rgba(214, 48, 49, 0.15);
+            color: var(--color-danger);
+            border-color: rgba(214, 48, 49, 0.3);
+        }
+    </style>
 </head>
 
-<body>
-    <div class="home-container">
-        <h1>👥 Lista de Usuarios</h1>
-        <p>Aquí puedes ver todos los usuarios registrados en el sistema.</p>
-
-        <div class="table-responsive">
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Usuario</th>
-                        <th>Email</th>
-                        <th>Nombre</th>
-                        <th>Apellido</th>
-                        <th>Rol</th>
-                        <th>Estado</th>
-                        {% if role_name == "Administrador" %}
-                        <th>Acciones</th>
-                        {% endif %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for usuario in usuarios %}
-                    <tr>
-                        <td>{{ usuario.id }}</td>
-                        <td><strong>{{ usuario.username }}</strong></td>
-                        <td>{{ usuario.email }}</td>
-                        <td>{{ usuario.first_name }}</td>
-                        <td>{{ usuario.last_name }}</td>
-                        <td><span class="badge">{{ usuario.role.nombre }}</span></td>
-                        <td>{{ usuario.estado }}</td>
-
-                        {% if role_name == "Administrador" %}
-                        <td>
-                            <div class="action-group">
-                                <a href="{% url 'editar_usuario' usuario.id %}" class="btn btn-editar">✏️</a>
-                                
-                                <button type="button" class="btn btn-eliminar" 
-                                        onclick="confirmarEliminarUsuario('{{ usuario.id }}', '{{ usuario.username|escapejs }}')">
-                                    🗑️
-                                </button>
-
-                                <form id="form-eliminar-user-{{ usuario.id }}" 
-                                      action="{% url 'eliminar_usuario' usuario.id %}" 
-                                      method="POST" style="display:none;">
-                                    {% csrf_token %}
-                                </form>
-                            </div>
-                        </td>
-                        {% endif %}
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="8" class="empty-row">No hay usuarios registrados.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+<body class="dashboard-page">
+<div class="dashboard-wrapper">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fas fa-dumbbell"></i> GYM POWER</h2>
+            <small style="color: var(--text-dim)">Panel de {{ role_name }}</small>
         </div>
 
-        <a href="{% url 'home' %}" class="btn btn-volver">⬅️ Volver al inicio</a>
-    </div>
-
-    <script>
-        // 1. Notificación de éxito al cargar la página
-        const mensajes = [
-            {% if messages %}
-                {% for m in messages %} "{{ m|escapejs }}", {% endfor %}
+        <nav class="nav-menu" style="flex-grow: 1;">
+            <a href="{% url 'home' %}" class="nav-link"><i class="fas fa-home"></i> Inicio</a>
+            
+            {% if role_name == "Administrador" %}
+                <p class="menu-label">Logística</p>
+                <a href="{% url 'listar_clases' %}" class="nav-link"><i class="fas fa-calendar-alt"></i> Gestión de Clases</a>
+                <a href="{% url 'reportes' %}" class="nav-link"><i class="fas fa-chart-pie"></i> Reportes Mensuales</a>
+                
+                <p class="menu-label">Usuarios</p>
+                <a href="{% url 'listar_usuarios' %}" class="nav-link active"><i class="fas fa-users-cog"></i> Control de Usuarios</a>
+                <a href="{% url 'notificaciones' %}" class="nav-link"><i class="fas fa-bell"></i> Comunicados</a>
             {% endif %}
-        ];
 
-        document.addEventListener('DOMContentLoaded', function() {
-            if (mensajes.length > 0) {
-                mensajes.forEach(msg => {
-                    Swal.fire({
-                        title: "¡Hecho!",
-                        text: msg,
-                        icon: "success",
-                        timer: 2500,
-                        showConfirmButton: false,
-                        background: '#2c2c3e',
-                        color: '#ffffff'
-                    });
+            {% if role_name == "Cliente" %}
+                <p class="menu-label">Mi Agenda</p>
+                <a href="{% url 'calendario_cliente' %}" class="nav-link"><i class="fas fa-calendar-days"></i> Mi Calendario</a>
+                <a href="{% url 'listar_clases' %}" class="nav-link"><i class="fas fa-dumbbells"></i> Ver Clases</a>
+                {% if perfil %}
+                <a href="{% url 'editar_usuario' perfil.id %}" class="nav-link"><i class="fas fa-user-edit"></i> Mi Perfil</a>
+                {% endif %}
+            {% endif %}
+
+            {% if role_name == "Entrenador" %}
+                <p class="menu-label">Entrenamientos</p>
+                <a href="{% url 'listar_clases' %}" class="nav-link"><i class="fas fa-calendar-alt"></i> Ver Clases</a>
+                <a href="{% url 'crear_clase' %}" class="nav-link"><i class="fas fa-plus-circle"></i> Crear Clase</a>
+                {% if perfil %}
+                <a href="{% url 'editar_usuario' perfil.id %}" class="nav-link"><i class="fas fa-user-edit"></i> Mi Perfil</a>
+                {% endif %}
+            {% endif %}
+        </nav>
+
+        <div class="sidebar-footer">
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-logout" style="width: 100%; display: flex; align-items: center; gap: 10px; justify-content: center;">
+                    <i class="fas fa-sign-out-alt"></i> 
+                    <span>Cerrar Sesión</span>
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <!-- BREADCRUMBS -->
+        <nav aria-label="breadcrumb" class="breadcrumb-container">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}"><i class="fas fa-home"></i> Inicio</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Control de Usuarios</li>
+            </ol>
+        </nav>
+
+        <header>
+            <h1>👥 Control de Usuarios</h1>
+            <p style="color: var(--text-muted)">Administra todos los perfiles de usuario registrados en la plataforma GymPower.</p>
+        </header>
+
+        <div class="users-card">
+            <div class="table-responsive" style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Usuario</th>
+                            <th>Email</th>
+                            <th>Nombre</th>
+                            <th>Apellido</th>
+                            <th>Rol</th>
+                            <th>Estado</th>
+                            {% if role_name == "Administrador" %}
+                            <th>Acciones</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for usuario in usuarios %}
+                        <tr>
+                            <td>{{ usuario.id }}</td>
+                            <td><strong>{{ usuario.username }}</strong></td>
+                            <td>{{ usuario.email }}</td>
+                            <td>{{ usuario.first_name }}</td>
+                            <td>{{ usuario.last_name }}</td>
+                            <td><span class="badge-role">{{ usuario.role.nombre|default:"Sin Rol" }}</span></td>
+                            <td>
+                                <span class="badge-estado {% if usuario.estado != 'Activo' %}inactivo{% endif %}">
+                                    {{ usuario.estado|default:"Activo" }}
+                                </span>
+                            </td>
+
+                            {% if role_name == "Administrador" %}
+                            <td>
+                                <div class="action-group">
+                                    <a href="{% url 'editar_usuario' usuario.id %}" class="btn btn-editar" style="padding: 6px 12px; font-size: 0.85rem;"><i class="fas fa-edit"></i></a>
+                                    
+                                    <button type="button" class="btn btn-eliminar" style="padding: 6px 12px; font-size: 0.85rem;"
+                                            onclick="confirmarEliminarUsuario('{{ usuario.id }}', '{{ usuario.username|escapejs }}')">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+
+                                    <form id="form-eliminar-user-{{ usuario.id }}" 
+                                          action="{% url 'eliminar_usuario' usuario.id %}" 
+                                          method="POST" style="display:none;">
+                                        {% csrf_token %}
+                                    </form>
+                                </div>
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="empty-row" style="text-align: center; color: var(--text-muted); padding: 30px 10px;">No hay usuarios registrados.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    // 1. Notificación de éxito al cargar la página
+    const mensajes = [
+        {% if messages %}
+            {% for m in messages %} "{{ m|escapejs }}", {% endfor %}
+        {% endif %}
+    ];
+
+    document.addEventListener('DOMContentLoaded', function() {
+        if (mensajes.length > 0) {
+            mensajes.forEach(msg => {
+                Swal.fire({
+                    title: "¡Hecho!",
+                    text: msg,
+                    icon: "success",
+                    timer: 2500,
+                    showConfirmButton: false,
+                    background: '#2c2c3e',
+                    color: '#ffffff'
                 });
-            }
-        });
-
-        // 2. Función para confirmar eliminación de usuario
-        function confirmarEliminarUsuario(id, username) {
-            Swal.fire({
-                title: '¿Eliminar usuario?',
-                text: `Vas a borrar a "${username}". Esta acción es irreversible.`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#e74c3c',
-                cancelButtonColor: '#636e72',
-                confirmButtonText: 'Sí, eliminar',
-                cancelButtonText: 'Cancelar',
-                background: '#2c2c3e',
-                color: '#ffffff'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    document.getElementById('form-eliminar-user-' + id).submit();
-                }
             });
         }
-    </script>
+    });
+
+    // 2. Función para confirmar eliminación de usuario
+    function confirmarEliminarUsuario(id, username) {
+        Swal.fire({
+            title: '¿Eliminar usuario?',
+            text: `Vas a borrar a "${username}". Esta acción es irreversible.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d63031',
+            cancelButtonColor: '#3e3e56',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar',
+            background: '#2c2c3e',
+            color: '#ffffff'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('form-eliminar-user-' + id).submit();
+            }
+        });
+    }
+</script>
 </body>
 </html>
