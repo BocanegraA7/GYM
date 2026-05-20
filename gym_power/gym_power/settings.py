@@ -76,7 +76,7 @@ DATABASES = {
         'NAME': 'gymdb',
         'USER': 'admin',
         'PASSWORD': 'Gym2025@',
-        'HOST': 'localhost',  # o 'db' si el servicio de Postgres está en Docker
+        'HOST': 'postgres',  # o 'db' si el servicio de Postgres está en Docker
         'PORT': '5432',
     }
 }

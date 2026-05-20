@@ -15,7 +15,6 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      # Aquí montamos tu carpeta local con los datos de postgres
       - ./gym_power/gym_project_postgres_data-cloned:/var/lib/postgresql/data:Z
     networks:
       - gym_backend
@@ -31,6 +30,22 @@ services:
       - "5497:80"
     depends_on:
       - postgres
+    networks:
+      - gym_backend
+
+  web:
+    container_name: django_gym
+    build: ./gym_power
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./gym_power:/code
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
     networks:
       - gym_backend
 
